@@ -15,4 +15,13 @@ public:
         this->worldUp = worldUp;
         projection = base_projection;
     }
+
+    void panCamera(glm::vec3 position) {
+        this->position += position;
+        this->target += position;
+    }
+
+    void dragCamera(float value) {
+        this->position.y += value;
+    }
 };

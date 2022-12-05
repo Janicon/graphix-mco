@@ -155,6 +155,124 @@ int main(void)
     return 0;
 }
 
+void Key_Callback(GLFWwindow* window,
+    int key,
+    int scanCode,
+    int action,
+    int mods)
+{
+    // Register only key press and hold
+    if (action == GLFW_RELEASE)
+        return;
+
+    static float speed = 0.05;
+    // Global controls
+    switch (key) {
+        // Change active camera
+        // 1 - Perspective camera
+        // 2 - Orthographic camera
+        case GLFW_KEY_1:
+            activeCamera = 0; break;
+        case GLFW_KEY_2:
+            activeCamera = 1; break;
+
+        // Space - Change controlled object
+        case GLFW_KEY_SPACE:
+            if (lightControl)
+                pointLight.setColor(glm::vec3(1));
+            else
+                pointLight.setColor(glm::vec3(.25f, 1, 1));
+            lightControl = !lightControl;
+            break;
+
+            // Arrows - light intensity
+            // U/D - Point light
+            // L/R - Direction light
+        case GLFW_KEY_UP:
+            pointLight.modIntensity(.05f); break;
+        case GLFW_KEY_LEFT:
+            directionLight.modIntensity(-.05f); break;
+        case GLFW_KEY_DOWN:
+            pointLight.modIntensity(-.05f); break;
+        case GLFW_KEY_RIGHT:
+            directionLight.modIntensity(.05f); break;
+            break;
+
+        //Top View Camera Drag and Pan Controls
+        if (activeCamera) {
+            case GLFW_KEY_Q:
+                cam2.dragCamera(-1.f);
+                break;
+            case GLFW_KEY_E:
+                cam2.dragCamera(1.f);
+                break;
+            case GLFW_KEY_W:
+                cam2.panCamera(glm::vec3(0, 0, -1));
+                break;
+            case GLFW_KEY_S:
+                cam2.panCamera(glm::vec3(0, 0, 1));
+                break;
+            case GLFW_KEY_A:
+                cam2.panCamera(glm::vec3(-1, 0, 0));
+                break;
+            case GLFW_KEY_D:
+                cam2.panCamera(glm::vec3(1, 0, 0));
+                break;
+        }
+   
+    }
+
+    //if (lightControl)
+    //    // Mode specific - light control
+    //    switch (key) {
+    //        // WASD QE - Light movement
+    //        // Adjust sphere location by X/Y/Z, align point light to its new position
+    //        case GLFW_KEY_Q:
+    //            sphere.adjustRotate(glm::vec3(0, 0, -1.f));
+    //            pointLight.setPos(sphere.getAbsolutePos());
+    //            break;
+    //        case GLFW_KEY_W:
+    //            sphere.adjustRotate(glm::vec3(0, 1.f, 0));
+    //            pointLight.setPos(sphere.getAbsolutePos());
+    //            break;
+    //        case GLFW_KEY_E:
+    //            sphere.adjustRotate(glm::vec3(0, 0, 1.f));
+    //            pointLight.setPos(sphere.getAbsolutePos());
+    //            break;
+    //        case GLFW_KEY_A:
+    //            sphere.adjustRotate(glm::vec3(-1.f, 0, 0));
+    //            pointLight.setPos(sphere.getAbsolutePos());
+    //            break;
+    //        case GLFW_KEY_S:
+    //            sphere.adjustRotate(glm::vec3(0, -1.f, 0));
+    //            pointLight.setPos(sphere.getAbsolutePos());
+    //            break;
+    //        case GLFW_KEY_D:
+    //            sphere.adjustRotate(glm::vec3(1.f, 0, 0));
+    //            pointLight.setPos(sphere.getAbsolutePos());
+    //            break;
+    //    }
+    //else
+    //    // Mode specific - object control
+    //    switch (key) {
+    //        // WASD QE - main object rotations
+    //        case GLFW_KEY_Q:
+    //            obj.adjustRotate(glm::vec3(0, 0, -1.f)); break;
+    //        case GLFW_KEY_W:
+    //            obj.adjustRotate(glm::vec3(0, 1.f, 0)); break;
+    //        case GLFW_KEY_E:
+    //            obj.adjustRotate(glm::vec3(0, 0, 1.f)); break;
+    //        case GLFW_KEY_A:
+    //            obj.adjustRotate(glm::vec3(-1.f, 0, 0)); break;
+    //        case GLFW_KEY_S:
+    //            obj.adjustRotate(glm::vec3(0, -1.f, 0)); break;
+    //        case GLFW_KEY_D:
+    //            obj.adjustRotate(glm::vec3(1.f, 0, 0)); break;
+    //    }
+
+
+}
+
 void CursorCallback(GLFWwindow* window, double xpos, double ypos) {
     // X degrees per pixel
     static float sensitivity = 0.25;
