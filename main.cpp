@@ -192,6 +192,83 @@ void Key_Callback(GLFWwindow* window,
 {
     player.setKey_Callback(key, action);
 }
+    }
+        //Top View Camera Drag and Pan Controls
+        if (activeCamera) {
+            case GLFW_KEY_Q:
+                cam2.dragCamera(-1.f);
+                break;
+            case GLFW_KEY_E:
+                cam2.dragCamera(1.f);
+                break;
+            case GLFW_KEY_W:
+                cam2.panCamera(glm::vec3(0, 0, -1));
+                break;
+            case GLFW_KEY_S:
+                cam2.panCamera(glm::vec3(0, 0, 1));
+                break;
+            case GLFW_KEY_A:
+                cam2.panCamera(glm::vec3(-1, 0, 0));
+                break;
+            case GLFW_KEY_D:
+                cam2.panCamera(glm::vec3(1, 0, 0));
+                break;
+        }
+   
+    }
+
+    //if (lightControl)
+    //    // Mode specific - light control
+    //    switch (key) {
+    //        // WASD QE - Light movement
+    //        // Adjust sphere location by X/Y/Z, align point light to its new position
+    //        case GLFW_KEY_Q:
+    //            sphere.adjustRotate(glm::vec3(0, 0, -1.f));
+    //            pointLight.setPos(sphere.getAbsolutePos());
+    //            break;
+    //        case GLFW_KEY_W:
+    //            sphere.adjustRotate(glm::vec3(0, 1.f, 0));
+    //            pointLight.setPos(sphere.getAbsolutePos());
+    //            break;
+    //        case GLFW_KEY_E:
+    //            sphere.adjustRotate(glm::vec3(0, 0, 1.f));
+    //            pointLight.setPos(sphere.getAbsolutePos());
+    //            break;
+    //        case GLFW_KEY_A:
+    //            sphere.adjustRotate(glm::vec3(-1.f, 0, 0));
+    //            pointLight.setPos(sphere.getAbsolutePos());
+    //            break;
+    //        case GLFW_KEY_S:
+    //            sphere.adjustRotate(glm::vec3(0, -1.f, 0));
+    //            pointLight.setPos(sphere.getAbsolutePos());
+    //            break;
+    //        case GLFW_KEY_D:
+    //            sphere.adjustRotate(glm::vec3(1.f, 0, 0));
+    //            pointLight.setPos(sphere.getAbsolutePos());
+    //            break;
+    //    }
+    //else
+    //    // Mode specific - object control
+    //    switch (key) {
+    //        // WASD QE - main object rotations
+    //        case GLFW_KEY_Q:
+    //            obj.adjustRotate(glm::vec3(0, 0, -1.f)); break;
+    //        case GLFW_KEY_W:
+    //            obj.adjustRotate(glm::vec3(0, 1.f, 0)); break;
+    //        case GLFW_KEY_E:
+    //            obj.adjustRotate(glm::vec3(0, 0, 1.f)); break;
+    //        case GLFW_KEY_A:
+    //            obj.adjustRotate(glm::vec3(-1.f, 0, 0)); break;
+    //        case GLFW_KEY_S:
+    //            obj.adjustRotate(glm::vec3(0, -1.f, 0)); break;
+    //        case GLFW_KEY_D:
+    //            obj.adjustRotate(glm::vec3(1.f, 0, 0)); break;
+    //    }
+
+
+}
+
+
 
 void CursorCallback(GLFWwindow* window, double xpos, double ypos) {
     player.setCursorCallback(window, xpos, ypos);
