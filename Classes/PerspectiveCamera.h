@@ -42,9 +42,9 @@ public:
         if (pitch < -89.f)
             pitch = -89.f;
 
-        position[0] = cos(glm::radians(yaw)) * cos(glm::radians(pitch)) * distance;
+        position[0] = -cos(glm::radians(yaw)) * cos(glm::radians(pitch)) * distance;
         position[1] = sin(glm::radians(pitch) * -1) * distance;
-        position[2] = sin(glm::radians(yaw)) * cos(glm::radians(pitch)) * distance;
+        position[2] = -sin(glm::radians(yaw)) * cos(glm::radians(pitch)) * distance;
 
         position += playerpos;
 
@@ -54,21 +54,29 @@ public:
     void adjustCameraTpp(glm::vec3 playerpos, glm::vec3 playerrot) {
         static float distance = 1.5;
 
-        position[0] = sin(glm::radians(playerrot.x)) * distance + playerpos.x;
-        position[1] = playerpos.y;
-        position[2] = cos(glm::radians(playerrot.x)) * distance + playerpos.z;
+        position[0] = -sin(glm::radians(playerrot.x)) * distance + playerpos.x;
+        position[1] = playerpos.y + 0.75f;
+        position[2] = -cos(glm::radians(playerrot.x)) * distance + playerpos.z;
 
         target = playerpos;
     }
 
     void adjustCameraFpp(glm::vec3 playerpos, glm::vec3 playerrot) {
-        static float distance = 1;
+        float newRot = playerrot.x - 180.f;
 
-        position[0] = sin(glm::radians(playerrot.x)) + playerpos.x;
-        position[1] = playerpos.y;
-        position[2] = cos(glm::radians(playerrot.x)) + playerpos.z;
 
-        target = playerpos + distance;
+        float offsetX = -sin(glm::radians(newRot));
+        float offsetY = -cos(glm::radians(newRot));
+
+        position = playerpos;
+
+        position[0] += offsetX;
+        position[2] += offsetY;
+
+        target = position;
+
+        target[0] += offsetX;
+        target[2] += offsetY;
     }
 
 };

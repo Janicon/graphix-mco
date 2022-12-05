@@ -30,7 +30,7 @@ public:
         int colorMode = GL_RGBA)
     {
         obj = Model(objPath.c_str(), texPath.c_str(),
-            glm::vec3(0), .5f, glm::vec3(0, 0, -90),
+            pos, size, rot,
             colorMode);
         obj.loadNorm("3D/brickwall_normal.jpg", GL_RGB);
         obj.setPivotObject();
@@ -93,9 +93,9 @@ public:
             case GLFW_KEY_W:
                 glm::vec3 rotation_w = obj.getRotation();
                 obj.modPos(glm::vec3(
-                    -0.05f * sin(glm::radians(rotation_w.x)),
+                    -0.05f * -sin(glm::radians(rotation_w.x)),
                     0,
-                    -0.05f * cos(glm::radians(rotation_w.x))));
+                    -0.05f * -cos(glm::radians(rotation_w.x))));
                 tpp.adjustCameraTpp(obj.getPos(), obj.getRotation()); break;
             case GLFW_KEY_E:
                 obj.modPos(glm::vec3(0, -0.1f, 0));
@@ -107,9 +107,9 @@ public:
             case GLFW_KEY_S:
                 glm::vec3 rotation_s = obj.getRotation();
                 obj.modPos(glm::vec3(
-                    0.05f * sin(glm::radians(rotation_s.x)),
+                    0.05f * -sin(glm::radians(rotation_s.x)),
                     0,
-                    0.05f * cos(glm::radians(rotation_s.x))));
+                    0.05f * -cos(glm::radians(rotation_s.x))));
                 tpp.adjustCameraTpp(obj.getPos(), obj.getRotation()); break;
             case GLFW_KEY_D:
                 obj.adjustRotate(glm::vec3(-1.f, 0, 0));
@@ -132,9 +132,9 @@ public:
             case GLFW_KEY_W:
                 glm::vec3 rotation_w = obj.getRotation();
                 obj.modPos(glm::vec3(
-                    -0.05f * sin(glm::radians(rotation_w.x)),
+                    -0.05f * -sin(glm::radians(rotation_w.x)),
                     0,
-                    -0.05f * cos(glm::radians(rotation_w.x))));
+                    -0.05f * -cos(glm::radians(rotation_w.x))));
                 fpp.adjustCameraFpp(obj.getPos(), obj.getRotation()); break;
             case GLFW_KEY_E:
                 obj.modPos(glm::vec3(0, -0.1f, 0));
@@ -146,9 +146,9 @@ public:
             case GLFW_KEY_S:
                 glm::vec3 rotation_s = obj.getRotation();
                 obj.modPos(glm::vec3(
-                    0.05f * sin(glm::radians(rotation_s.x)),
+                    0.05f * -sin(glm::radians(rotation_s.x)),
                     0,
-                    0.05f * cos(glm::radians(rotation_s.x))));
+                    0.05f * -cos(glm::radians(rotation_s.x))));
                 fpp.adjustCameraFpp(obj.getPos(), obj.getRotation()); break;
             case GLFW_KEY_D:
                 obj.adjustRotate(glm::vec3(-1.f, 0, 0));

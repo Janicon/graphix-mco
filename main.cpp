@@ -32,6 +32,11 @@ Player player;
 Model obj, sphere;
 std::vector<Model*> models{ &obj, &sphere };
 
+OrthographicCamera cam2 = OrthographicCamera(
+    glm::vec3(0, 1, 0),
+    glm::vec3(0),
+    glm::vec3(0, 0, -1));
+
 DirectionLight directionLight;
 PointLight pointLight;
 
@@ -71,7 +76,7 @@ int main(void)
 
     Skybox skybox = Skybox();
     stbi_set_flip_vertically_on_load(true);
-    obj = Model("3D/plane.obj", "3D/brickwall.jpg",
+    obj = Model("3D/ball.obj", "3D/brickwall.jpg",
         glm::vec3(0), .5f, glm::vec3(0, 0, -90),
         GL_RGB);
     obj.loadNorm("3D/brickwall_normal.jpg", GL_RGB);
@@ -80,8 +85,8 @@ int main(void)
         glm::vec3(0.f, 0.5f, 1.f), .0025f, glm::vec3(0),
         GL_RGB);
 
-    player = Player("3D/plane.obj", "3D/brickwall.jpg",
-        glm::vec3(0), .5f, glm::vec3(0, 0, -90),
+    player = Player("3D/fish.obj", "3D/brickwall.jpg",
+        glm::vec3(0), 0.1f, glm::vec3(0, 0, 0),
         GL_RGB);
 
 
@@ -183,7 +188,7 @@ int main(void)
     glfwTerminate();
     return 0;
 }
-
+//player.setKey_Callback(key, action);
 void Key_Callback(GLFWwindow* window,
     int key,
     int scanCode,
@@ -191,81 +196,44 @@ void Key_Callback(GLFWwindow* window,
     int mods)
 {
     player.setKey_Callback(key, action);
-}
-    }
-        //Top View Camera Drag and Pan Controls
-        if (activeCamera) {
-            case GLFW_KEY_Q:
-                cam2.dragCamera(-1.f);
-                break;
-            case GLFW_KEY_E:
-                cam2.dragCamera(1.f);
-                break;
-            case GLFW_KEY_W:
-                cam2.panCamera(glm::vec3(0, 0, -1));
-                break;
-            case GLFW_KEY_S:
-                cam2.panCamera(glm::vec3(0, 0, 1));
-                break;
-            case GLFW_KEY_A:
-                cam2.panCamera(glm::vec3(-1, 0, 0));
-                break;
-            case GLFW_KEY_D:
-                cam2.panCamera(glm::vec3(1, 0, 0));
-                break;
+
+    // Register only key press and hold
+    if (action == GLFW_RELEASE)
+        return;
+
+    static float speed = 0.05;
+    // Global controls
+    switch (key) {
+        // Change active camera
+        // 1 - Perspective camera
+        // 2 - Orthographic camera
+    case GLFW_KEY_1:
+        activeCamera = 0; break;
+    case GLFW_KEY_2:
+        activeCamera = 1; break;
+
+    //Top View Camera Drag and Pan Controls
+    if (activeCamera) {
+        case GLFW_KEY_Q:
+            cam2.dragCamera(-1.f);
+            break;
+        case GLFW_KEY_E:
+            cam2.dragCamera(1.f);
+            break;
+        case GLFW_KEY_W:
+            cam2.panCamera(glm::vec3(0, 0, -1));
+            break;
+        case GLFW_KEY_S:
+            cam2.panCamera(glm::vec3(0, 0, 1));
+            break;
+        case GLFW_KEY_A:
+            cam2.panCamera(glm::vec3(-1, 0, 0));
+            break;
+        case GLFW_KEY_D:
+            cam2.panCamera(glm::vec3(1, 0, 0));
+            break;
         }
-   
     }
-
-    //if (lightControl)
-    //    // Mode specific - light control
-    //    switch (key) {
-    //        // WASD QE - Light movement
-    //        // Adjust sphere location by X/Y/Z, align point light to its new position
-    //        case GLFW_KEY_Q:
-    //            sphere.adjustRotate(glm::vec3(0, 0, -1.f));
-    //            pointLight.setPos(sphere.getAbsolutePos());
-    //            break;
-    //        case GLFW_KEY_W:
-    //            sphere.adjustRotate(glm::vec3(0, 1.f, 0));
-    //            pointLight.setPos(sphere.getAbsolutePos());
-    //            break;
-    //        case GLFW_KEY_E:
-    //            sphere.adjustRotate(glm::vec3(0, 0, 1.f));
-    //            pointLight.setPos(sphere.getAbsolutePos());
-    //            break;
-    //        case GLFW_KEY_A:
-    //            sphere.adjustRotate(glm::vec3(-1.f, 0, 0));
-    //            pointLight.setPos(sphere.getAbsolutePos());
-    //            break;
-    //        case GLFW_KEY_S:
-    //            sphere.adjustRotate(glm::vec3(0, -1.f, 0));
-    //            pointLight.setPos(sphere.getAbsolutePos());
-    //            break;
-    //        case GLFW_KEY_D:
-    //            sphere.adjustRotate(glm::vec3(1.f, 0, 0));
-    //            pointLight.setPos(sphere.getAbsolutePos());
-    //            break;
-    //    }
-    //else
-    //    // Mode specific - object control
-    //    switch (key) {
-    //        // WASD QE - main object rotations
-    //        case GLFW_KEY_Q:
-    //            obj.adjustRotate(glm::vec3(0, 0, -1.f)); break;
-    //        case GLFW_KEY_W:
-    //            obj.adjustRotate(glm::vec3(0, 1.f, 0)); break;
-    //        case GLFW_KEY_E:
-    //            obj.adjustRotate(glm::vec3(0, 0, 1.f)); break;
-    //        case GLFW_KEY_A:
-    //            obj.adjustRotate(glm::vec3(-1.f, 0, 0)); break;
-    //        case GLFW_KEY_S:
-    //            obj.adjustRotate(glm::vec3(0, -1.f, 0)); break;
-    //        case GLFW_KEY_D:
-    //            obj.adjustRotate(glm::vec3(1.f, 0, 0)); break;
-    //    }
-
-
 }
 
 
