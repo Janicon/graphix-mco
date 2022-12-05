@@ -6,6 +6,7 @@
 
 #include <string>
 #include <iostream>
+using namespace std;
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -23,20 +24,13 @@
 #include "Classes/Light.h"
 #include "Classes/DirectionLight.h"
 #include "Classes/PointLight.h"
+#include "Classes/Player.h"
 
 /* Global variables */
+Player player;
+
 Model obj, sphere;
 std::vector<Model*> models{ &obj, &sphere };
-
-PerspectiveCamera cam1 = PerspectiveCamera(
-    glm::vec3(0, 0, 1.5),
-    glm::vec3(0),
-    glm::vec3(0, 1, 0));
-OrthographicCamera cam2 = OrthographicCamera(
-    glm::vec3(0, 1, 0),
-    glm::vec3(0),
-    glm::vec3(0, 0, -1));
-std::vector<Camera*> cameras { &cam1, &cam2 };
 
 DirectionLight directionLight;
 PointLight pointLight;
@@ -86,6 +80,11 @@ int main(void)
         glm::vec3(0.f, 0.5f, 1.f), .0025f, glm::vec3(0),
         GL_RGB);
 
+    player = Player("3D/plane.obj", "3D/brickwall.jpg",
+        glm::vec3(0), .5f, glm::vec3(0, 0, -90),
+        GL_RGB);
+
+
     glEnable(GL_DEPTH_TEST);
 
     // Set callbacks
@@ -125,14 +124,14 @@ int main(void)
         glBlendEquation(GL_FUNC_ADD);
 
         // Draw skybox
-        skybox.draw(cameras[activeCamera]->getViewMatrix(),
-            cameras[activeCamera]->getProjection());
+        skybox.draw(player.getActiveCamera().getViewMatrix(),
+            player.getActiveCamera().getProjection());
 
         // Draw models
         modelShader.useShaderProgram();
 
         // Get position of active camera
-        modelShader.sendVec3("cameraPos", cameras[activeCamera]->getPosition());
+        modelShader.sendVec3("cameraPos", player.getActiveCamera().getPosition());
 
         // Direction light variables
         modelShader.sendVec3("dirLight_direction", directionLight.getDirection());
@@ -153,18 +152,18 @@ int main(void)
         modelShader.sendFloat("pointLight_specPhong", pointLight.getSpecPhong());
 
         // Draw object model
-        modelShader.sendMat4("projection", cameras[activeCamera]->getProjection());
-        modelShader.sendMat4("view", cameras[activeCamera]->getViewMatrix());
+        modelShader.sendMat4("projection", player.getActiveCamera().getProjection());
+        modelShader.sendMat4("view", player.getActiveCamera().getViewMatrix());
 
-        obj.draw(modelShader.getUniformLoc("transform"),
+        player.getPlayer().draw(modelShader.getUniformLoc("transform"),
             modelShader.getUniformLoc("tex0"),
             modelShader.getUniformLoc("tex1"));
 
         // Draw light source model
         lightShader.useShaderProgram();
         
-        lightShader.sendMat4("projection", cameras[activeCamera]->getProjection());
-        lightShader.sendMat4("view", cameras[activeCamera]->getViewMatrix());
+        lightShader.sendMat4("projection", player.getActiveCamera().getProjection());
+        lightShader.sendMat4("view", player.getActiveCamera().getViewMatrix());
         lightShader.sendVec3("color", pointLight.getColor());
         
         sphere.draw(lightShader.getUniformLoc("transform"));
@@ -191,119 +190,9 @@ void Key_Callback(GLFWwindow* window,
     int action,
     int mods)
 {
-    // Register only key press and hold
-    if (action == GLFW_RELEASE)
-        return;
-
-    static float speed = 0.05;
-    // Global controls
-    switch (key) {
-        // Change active camera
-        // 1 - Perspective camera
-        // 2 - Orthographic camera
-        case GLFW_KEY_1:
-            activeCamera = 0; break;
-        case GLFW_KEY_2:
-            activeCamera = 1; break;
-
-        // Space - Change controlled object
-        case GLFW_KEY_SPACE:
-            if (lightControl)
-                pointLight.setColor(glm::vec3(1));
-            else
-                pointLight.setColor(glm::vec3(.25f, 1, 1));
-            lightControl = !lightControl;
-            break;
-
-            // Arrows - light intensity
-            // U/D - Point light
-            // L/R - Direction light
-        case GLFW_KEY_UP:
-            pointLight.modIntensity(.05f); break;
-        case GLFW_KEY_LEFT:
-            directionLight.modIntensity(-.05f); break;
-        case GLFW_KEY_DOWN:
-            pointLight.modIntensity(-.05f); break;
-        case GLFW_KEY_RIGHT:
-            directionLight.modIntensity(.05f); break;
-            break;
-    }
-
-    if (lightControl)
-        // Mode specific - light control
-        switch (key) {
-            // WASD QE - Light movement
-            // Adjust sphere location by X/Y/Z, align point light to its new position
-            case GLFW_KEY_Q:
-                sphere.adjustRotate(glm::vec3(0, 0, -1.f));
-                pointLight.setPos(sphere.getAbsolutePos());
-                break;
-            case GLFW_KEY_W:
-                sphere.adjustRotate(glm::vec3(0, 1.f, 0));
-                pointLight.setPos(sphere.getAbsolutePos());
-                break;
-            case GLFW_KEY_E:
-                sphere.adjustRotate(glm::vec3(0, 0, 1.f));
-                pointLight.setPos(sphere.getAbsolutePos());
-                break;
-            case GLFW_KEY_A:
-                sphere.adjustRotate(glm::vec3(-1.f, 0, 0));
-                pointLight.setPos(sphere.getAbsolutePos());
-                break;
-            case GLFW_KEY_S:
-                sphere.adjustRotate(glm::vec3(0, -1.f, 0));
-                pointLight.setPos(sphere.getAbsolutePos());
-                break;
-            case GLFW_KEY_D:
-                sphere.adjustRotate(glm::vec3(1.f, 0, 0));
-                pointLight.setPos(sphere.getAbsolutePos());
-                break;
-        }
-    else
-        // Mode specific - object control
-        switch (key) {
-            // WASD QE - main object rotations
-            case GLFW_KEY_Q:
-                obj.adjustRotate(glm::vec3(0, 0, -1.f)); break;
-            case GLFW_KEY_W:
-                obj.adjustRotate(glm::vec3(0, 1.f, 0)); break;
-            case GLFW_KEY_E:
-                obj.adjustRotate(glm::vec3(0, 0, 1.f)); break;
-            case GLFW_KEY_A:
-                obj.adjustRotate(glm::vec3(-1.f, 0, 0)); break;
-            case GLFW_KEY_S:
-                obj.adjustRotate(glm::vec3(0, -1.f, 0)); break;
-            case GLFW_KEY_D:
-                obj.adjustRotate(glm::vec3(1.f, 0, 0)); break;
-        }
+    player.setKey_Callback(key, action);
 }
 
 void CursorCallback(GLFWwindow* window, double xpos, double ypos) {
-    // Exit if camera is in orthographic view
-    if (activeCamera == 1)
-        return;
-
-    // X degrees per pixel
-    static float sensitivity = 0.25;
-
-    // Unlock freelook on mouse press, lock on release
-    int mouseButton = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
-    if (mouseButton == GLFW_PRESS && !lookMode) {
-        lookMode = true;
-        // Set starting position for cursor
-        glfwGetCursorPos(window, &cursorX, &cursorY);
-    }
-    else if (mouseButton == GLFW_RELEASE)
-        lookMode = false;
-    
-    // Proceed if freelook is unlocked
-    if (!lookMode)
-        return;
-
-    // Move pitch and yaw depending on how far cursor moves
-    double oldX = cursorX;
-    double oldY = cursorY;
-    glfwGetCursorPos(window, &cursorX, &cursorY);
-    
-    cam1.revolve(sensitivity * (cursorX - oldX), sensitivity * (oldY - cursorY));
+    player.setCursorCallback(window, xpos, ypos);
 }
