@@ -27,23 +27,20 @@ using namespace std;
 #include "Classes/Player.h"
 
 /* Global variables */
-OrthographicCamera cam2 = OrthographicCamera(
-    glm::vec3(0, 1, 0),
+Player player;
+
+OrthographicCamera orthoCam = OrthographicCamera(
+    glm::vec3(0.f, 1, 0.f),
     glm::vec3(0),
-    glm::vec3(0, 0, -1));
-//PerspectiveCamera cam = PerspectiveCamera(
-//    glm::vec3(0, 0, 1.5),
-//    glm::vec3(0),
-//    glm::vec3(0, 1, 0));
+    glm::vec3(0, 0, -1.f));
 
-DirectionLight directionLight;
-PointLight pointLight;
-
-// User control
+/* User controls */
+bool isTopDown = false;
 bool lookMode = false;
 double cursorX, cursorY;
 
 // Function declarations
+void Key_Callback(GLFWwindow* window, int key, int scanCode, int action, int mods);
 void CursorCallback(GLFWwindow* window, double xpos, double ypos);
 
 int main(void)
@@ -76,11 +73,16 @@ int main(void)
     player = Player("3D/fish.obj", "3D/brickwall.jpg",
         glm::vec3(0), 0.1f, glm::vec3(0, 0, 0),
         GL_RGB);
-
+    Model sphere = Model("3D/ball.obj", "3D/ball.jpg",
+        glm::vec3(0, 0, -2), 0.01f, glm::vec3(0),
+        GL_RGB);
+    // Set player camera as default
+    Camera activeCamera = (Camera)player.getActiveCamera();
 
     glEnable(GL_DEPTH_TEST);
 
     // Set callbacks
+    glfwSetKeyCallback(window, Key_Callback);
     glfwSetCursorPosCallback(window, CursorCallback);
 
     ShaderManager modelShader = ShaderManager("model");
@@ -91,12 +93,7 @@ int main(void)
     glBindVertexArray(0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-    pointLight = PointLight(
-        glm::vec3(0), glm::vec3(1), // Pos to be overriden
-        .1f, glm::vec3(1),
-        1.f, 32.f
-    );
-    directionLight = DirectionLight(
+    DirectionLight directionLight = DirectionLight(
         //glm::vec3(4, 11, -3), glm::vec3(.33f, .1f, .66f),
         glm::vec3(0, 5, 0), glm::vec3(1),
         .2f, glm::vec3(1),
@@ -111,19 +108,23 @@ int main(void)
         
         // Blend tester http://www.andersriggelsen.dk/glblendfunc.php
         glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glBlendEquation(GL_FUNC_ADD);
 
-        // Draw skybox
-        skybox.draw(player.getActiveCamera().getViewMatrix(),
-            player.getActiveCamera().getProjection());
+        // Change active camera based on mode
+        if (isTopDown)
+            activeCamera = (Camera)orthoCam;
+        else
+            activeCamera = (Camera)player.getActiveCamera();
 
-        /*
+        // Draw skybox
+        //skybox.draw(player.getActiveCamera().getViewMatrix());
+        skybox.draw(activeCamera.getViewMatrix());
+
         // Draw models
         modelShader.useShaderProgram();
 
         // Get position of active camera
-        modelShader.sendVec3("cameraPos", player.getActiveCamera().getPosition());
+        modelShader.sendVec3("cameraPos", activeCamera.getPosition());
 
         // Direction light variables
         modelShader.sendVec3("dirLight_direction", directionLight.getDirection());
@@ -135,33 +136,23 @@ int main(void)
         modelShader.sendFloat("dirLight_specPhong", directionLight.getSpecPhong());
 
         // Point light variables
-        modelShader.sendVec3("pointLight_position", pointLight.getPos());
-        modelShader.sendVec3("pointLight_color", pointLight.getColor());
-        modelShader.sendFloat("pointLight_strength", pointLight.getIntensity());
-        modelShader.sendFloat("pointLight_ambientStr", pointLight.getAmbientStr());
-        modelShader.sendVec3("pointLight_ambientColor", pointLight.getAmbientColor());
-        modelShader.sendFloat("pointLight_specStr", pointLight.getSpecStr());
-        modelShader.sendFloat("pointLight_specPhong", pointLight.getSpecPhong());
+        modelShader.sendVec3("pointLight_position", player.getFlashlight().getPos());
+        modelShader.sendVec3("pointLight_color", player.getFlashlight().getColor());
+        modelShader.sendFloat("pointLight_strength", player.getFlashlight().getIntensity());
+        modelShader.sendFloat("pointLight_ambientStr", player.getFlashlight().getAmbientStr());
+        modelShader.sendVec3("pointLight_ambientColor", player.getFlashlight().getAmbientColor());
+        modelShader.sendFloat("pointLight_specStr", player.getFlashlight().getSpecStr());
+        modelShader.sendFloat("pointLight_specPhong", player.getFlashlight().getSpecPhong());
+
+        sphere.draw(modelShader.getUniformLoc("transform"));
 
         // Draw object model
-        modelShader.sendMat4("projection", cam.getProjection());
-        modelShader.sendMat4("view", cam.getViewMatrix());
-        */
-        modelShader.sendMat4("projection", player.getActiveCamera().getProjection());
-        modelShader.sendMat4("view", player.getActiveCamera().getViewMatrix());
+        modelShader.sendMat4("projection", activeCamera.getProjection());
+        modelShader.sendMat4("view", activeCamera.getViewMatrix());
 
         player.getPlayer().draw(modelShader.getUniformLoc("transform"),
             modelShader.getUniformLoc("tex0"),
             modelShader.getUniformLoc("tex1"));
-
-        // Draw light source model
-        lightShader.useShaderProgram();
-        
-        lightShader.sendMat4("projection", player.getActiveCamera().getProjection());
-        lightShader.sendMat4("view", player.getActiveCamera().getViewMatrix());
-        lightShader.sendVec3("color", pointLight.getColor());
-        
-        sphere.draw(lightShader.getUniformLoc("transform"));
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
@@ -171,61 +162,55 @@ int main(void)
     }
 
     // Clean up variables
+    player.cleanup();
+    sphere.cleanup();
     skybox.cleanup();
 
     glfwTerminate();
     return 0;
 }
-//player.setKey_Callback(key, action);
+
 void Key_Callback(GLFWwindow* window,
     int key,
     int scanCode,
     int action,
     int mods)
 {
-    player.setKey_Callback(key, action);
-
     // Register only key press and hold
     if (action == GLFW_RELEASE)
         return;
+    
+    if (key == GLFW_KEY_2)
+        isTopDown = !isTopDown;
 
-    static float speed = 0.05;
-    // Global controls
+    if (!isTopDown) {
+        player.parseKey(key, action);
+        return;
+    }
+    
     switch (key) {
-        // Change active camera
-        // 1 - Perspective camera
-        // 2 - Orthographic camera
-    case GLFW_KEY_1:
-        activeCamera = 0; break;
-    case GLFW_KEY_2:
-        activeCamera = 1; break;
-
     //Top View Camera Drag and Pan Controls
-    if (activeCamera) {
         case GLFW_KEY_Q:
-            cam2.dragCamera(-1.f);
+            orthoCam.dragCamera(-1.f);
             break;
         case GLFW_KEY_E:
-            cam2.dragCamera(1.f);
+            orthoCam.dragCamera(1.f);
             break;
         case GLFW_KEY_W:
-            cam2.panCamera(glm::vec3(0, 0, -1));
+            orthoCam.panCamera(glm::vec3(0, 0, -1));
             break;
         case GLFW_KEY_S:
-            cam2.panCamera(glm::vec3(0, 0, 1));
+            orthoCam.panCamera(glm::vec3(0, 0, 1));
             break;
         case GLFW_KEY_A:
-            cam2.panCamera(glm::vec3(-1, 0, 0));
+            orthoCam.panCamera(glm::vec3(-1, 0, 0));
             break;
         case GLFW_KEY_D:
-            cam2.panCamera(glm::vec3(1, 0, 0));
+            orthoCam.panCamera(glm::vec3(1, 0, 0));
             break;
-        }
     }
 }
 
-
-
 void CursorCallback(GLFWwindow* window, double xpos, double ypos) {
-    player.setCursorCallback(window, xpos, ypos);
+    player.parseCursor(window, xpos, ypos);
 }

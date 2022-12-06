@@ -5,6 +5,13 @@ private:
     unsigned int tex;
     ShaderManager shader;
 
+    glm::mat4 default_projection = glm::perspective(
+        glm::radians(60.f),
+        1.f,
+        .1f,
+        100.f
+    );
+
     float defaultVertices[24]{
         -1.f, -1.f, 1.f, //0
         1.f, -1.f, 1.f,  //1
@@ -101,7 +108,7 @@ public:
         shader = ShaderManager("skybox");
 	}
 
-    void draw(glm::mat4 viewMatrix, glm::mat4 projection) {
+    void draw(glm::mat4 viewMatrix) {
         glDepthMask(GL_FALSE);
         glDepthFunc(GL_LEQUAL);
 
@@ -110,7 +117,7 @@ public:
         glm::mat4 sky_view = glm::mat4(1.f);
         sky_view = glm::mat4(glm::mat3(viewMatrix));
 
-        shader.sendMat4("projection", projection);
+        shader.sendMat4("projection", default_projection);
         shader.sendMat4("view", sky_view);
 
         glBindVertexArray(VAO);

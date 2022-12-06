@@ -1,8 +1,10 @@
 #pragma once
 class Player {
 private:
-    Model obj;
+    enum cameraModes { FPP, TPP };
+    float lightLevels[3]{ .5, 1.25, 2 };
 
+    Model obj;
     PerspectiveCamera tpp = PerspectiveCamera(
         glm::vec3(0, 0, 1.5),
         glm::vec3(0),
@@ -13,14 +15,23 @@ private:
         glm::vec3(0),
         glm::vec3(0, 1, 0),
         false);
-
-    std::vector<Camera*> persCameras{ &tpp, &fpp };
+    PointLight flashlight;
 
     // User control
-    bool lightControl = false;
-    int activeCamera = 0;
+    cameraModes activeCamera = TPP;
+    int lightLevel = 0;
     bool lookMode = false;
     double cursorX, cursorY;
+
+    void repositionLight() {
+        glm::vec3 newPos = obj.getPos();
+        float facing = obj.getRotation().x;
+        newPos += glm::vec3(
+            0.5 * sin(glm::radians(facing)),
+            0,
+            0.5 * cos(glm::radians(facing)));
+        flashlight.setPos(newPos);
+    }
 
 public:
     Player() {}
@@ -34,132 +45,102 @@ public:
             colorMode);
         obj.loadNorm("3D/brickwall_normal.jpg", GL_RGB);
         obj.setPivotObject();
+
+        flashlight = PointLight(
+            glm::vec3(0), glm::vec3(1), // Pos to be overriden
+            .1f, glm::vec3(1),
+            1.f, 32.f
+        );
+        flashlight.setIntensity(lightLevels[lightLevel]);
+        repositionLight();
     }
 
     Model getPlayer() {
         return obj;
     }
 
-    Camera getActiveCamera() {
-        if (activeCamera == 1)
+    PerspectiveCamera getActiveCamera() {
+        if (activeCamera == FPP)
             return fpp;
         else
             return tpp;
     }
 
-    void setKey_Callback(int key,
-        int action)
-    {
+    PointLight getFlashlight() {
+        return flashlight;
+    }
+
+    // TODO: Move light along with model
+    void parseKey(int key, int action) {
         // Register only key press and hold
         if (action == GLFW_RELEASE)
             return;
 
         static float speed = 0.05;
-        // Global controls
         switch (key) {
             // Change active camera
-            // 1 - Perspective camera
-            // 2 - Orthographic camera
-        case GLFW_KEY_1:
-            if (activeCamera == 1)
-                activeCamera = 0;
-            else
-                activeCamera = 1;
-            break;
+            case GLFW_KEY_1:
+                if (activeCamera == FPP)
+                    activeCamera = TPP;
+                else
+                    activeCamera = FPP;
+                break;
 
-            // Space - Change controlled object
-        //case GLFW_KEY_2:
-        //    if (lightControl)
-        //        pointLight.setColor(glm::vec3(1));
-        //    else
-        //        pointLight.setColor(glm::vec3(.25f, 1, 1));
-        //    lightControl = !lightControl;
-        //    break;
+            // Movement
+            // WS - main object z position
+            // QE - main object y position
+            // AD - main object x rotation
+            case GLFW_KEY_Q:
+                if (!(obj.getPos().y > 0)) {
+                    obj.modPos(glm::vec3(0, 0.1f, 0));
+                    cout << "Current Depth: " << obj.getPos().y << endl;
+                }
+                break;
+            case GLFW_KEY_W:
+                glm::vec3 rotation_w = obj.getRotation();
+                obj.modPos(glm::vec3(
+                    speed * sin(glm::radians(rotation_w.x)),
+                    0,
+                    speed * cos(glm::radians(rotation_w.x))));
+                break;
+            case GLFW_KEY_E:
+                obj.modPos(glm::vec3(0, -0.1f, 0));
+                cout << "Current Depth: " << obj.getPos().y << endl;
+                break;
+            case GLFW_KEY_A:
+                obj.adjustRotate(glm::vec3(1.f, 0, 0));
+                break;
+            case GLFW_KEY_S:
+                glm::vec3 rotation_s = obj.getRotation();
+                obj.modPos(glm::vec3(
+                    -speed * sin(glm::radians(rotation_s.x)),
+                    0,
+                    -speed * cos(glm::radians(rotation_s.x))));
+                break;
+            case GLFW_KEY_D:
+                obj.adjustRotate(glm::vec3(-1.f, 0, 0));
+                break;
+
+            // Change flashlight brightness
+            case GLFW_KEY_F:
+                lightLevel++;
+                flashlight.setIntensity(lightLevels[lightLevel]);
+                if (lightLevel > 2)
+                    lightLevel = 0;
+                break;
         }
 
-        if (activeCamera == 0)
-            // Mode specific - object control
-            switch (key) {
-                //WS - main object z position
-                //QE - main object y position
-                //AD - main object x rotation
-            case GLFW_KEY_Q:
-                glm::vec3 objPos = obj.getPos();
-                if (!(objPos.y > 0)) {
-                    obj.modPos(glm::vec3(0, 0.1f, 0));
-                    tpp.adjustCameraTpp(obj.getPos(), obj.getRotation()); //TODO: -1.49012e-08 0 DEPTH
-                    cout << "Current Depth: " << objPos.y << endl;
-                } break;
-            case GLFW_KEY_W:
-                glm::vec3 rotation_w = obj.getRotation();
-                obj.modPos(glm::vec3(
-                    -0.05f * -sin(glm::radians(rotation_w.x)),
-                    0,
-                    -0.05f * -cos(glm::radians(rotation_w.x))));
-                tpp.adjustCameraTpp(obj.getPos(), obj.getRotation()); break;
-            case GLFW_KEY_E:
-                obj.modPos(glm::vec3(0, -0.1f, 0));
-                tpp.adjustCameraTpp(obj.getPos(), obj.getRotation());
-                cout << "Current Depth: " << obj.getPos().y << endl; break;
-            case GLFW_KEY_A:
-                obj.adjustRotate(glm::vec3(1.f, 0, 0));
-                tpp.adjustCameraTpp(obj.getPos(), obj.getRotation()); break;
-            case GLFW_KEY_S:
-                glm::vec3 rotation_s = obj.getRotation();
-                obj.modPos(glm::vec3(
-                    0.05f * -sin(glm::radians(rotation_s.x)),
-                    0,
-                    0.05f * -cos(glm::radians(rotation_s.x))));
-                tpp.adjustCameraTpp(obj.getPos(), obj.getRotation()); break;
-            case GLFW_KEY_D:
-                obj.adjustRotate(glm::vec3(-1.f, 0, 0));
-                tpp.adjustCameraTpp(obj.getPos(), obj.getRotation()); break;
+        // Update camera positions
+        tpp.adjustCameraTpp(obj.getPos(), obj.getRotation());
+        fpp.adjustCameraFpp(obj.getPos(), obj.getRotation());
 
-            }
-        else
-            // Mode specific - object control
-            switch (key) {
-                //WS - main object z position
-                //QE - main object y position
-                //AD - main object x rotation
-            case GLFW_KEY_Q:
-                glm::vec3 objPos = obj.getPos();
-                if (!(objPos.y > 0)) {
-                    obj.modPos(glm::vec3(0, 0.1f, 0));
-                    fpp.adjustCameraFpp(obj.getPos(), obj.getRotation());
-                    cout << "Current Depth: " << objPos.y << endl;
-                } break;
-            case GLFW_KEY_W:
-                glm::vec3 rotation_w = obj.getRotation();
-                obj.modPos(glm::vec3(
-                    -0.05f * -sin(glm::radians(rotation_w.x)),
-                    0,
-                    -0.05f * -cos(glm::radians(rotation_w.x))));
-                fpp.adjustCameraFpp(obj.getPos(), obj.getRotation()); break;
-            case GLFW_KEY_E:
-                obj.modPos(glm::vec3(0, -0.1f, 0));
-                fpp.adjustCameraFpp(obj.getPos(), obj.getRotation());
-                cout << "Current Depth: " << obj.getPos().y << endl; break;
-            case GLFW_KEY_A:
-                obj.adjustRotate(glm::vec3(1.f, 0, 0));
-                fpp.adjustCameraFpp(obj.getPos(), obj.getRotation()); break;
-            case GLFW_KEY_S:
-                glm::vec3 rotation_s = obj.getRotation();
-                obj.modPos(glm::vec3(
-                    0.05f * -sin(glm::radians(rotation_s.x)),
-                    0,
-                    0.05f * -cos(glm::radians(rotation_s.x))));
-                fpp.adjustCameraFpp(obj.getPos(), obj.getRotation()); break;
-            case GLFW_KEY_D:
-                obj.adjustRotate(glm::vec3(-1.f, 0, 0));
-                fpp.adjustCameraFpp(obj.getPos(), obj.getRotation()); break;
-
-            }
+        // Move player light to front of player
+        repositionLight();
     }
 
-    void setCursorCallback(GLFWwindow* window, double xpos, double ypos) {
+    void parseCursor(GLFWwindow* window, double xpos, double ypos) {
         // Exit if camera is in orthographic view
-        if (activeCamera == 1)
+        if (activeCamera == FPP)
             return;
 
         // X degrees per pixel
@@ -182,12 +163,15 @@ public:
             return;
         }
 
-
         // Move pitch and yaw depending on how far cursor moves
         double oldX = cursorX;
         double oldY = cursorY;
         glfwGetCursorPos(window, &cursorX, &cursorY);
 
         tpp.revolve(sensitivity * (cursorX - oldX), sensitivity * (oldY - cursorY), obj.getPos());
+    }
+
+    void cleanup() {
+        obj.cleanup();
     }
 };

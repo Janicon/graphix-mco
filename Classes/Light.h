@@ -40,6 +40,9 @@ public:
     void setColor(glm::vec3 color) {
         this->color = color;
     }
+    void setIntensity(float intensity) {
+        this->intensity = intensity;
+    }
 
     void modIntensity(float intensity) {
         this->intensity += intensity;
