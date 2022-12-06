@@ -2,7 +2,13 @@
 
 class PerspectiveCamera : public Camera {
 private:
-    const glm::mat4 base_projection = glm::perspective(
+    glm::mat4 base_projection_tpp = glm::perspective(
+        glm::radians(60.f),
+        1.f,
+        .1f,
+        10.f
+    );
+    glm::mat4 base_projection_fpp = glm::perspective(
         glm::radians(60.f),
         1.f,
         .1f,
@@ -12,15 +18,18 @@ private:
     float yaw = 90.f;
 
 public:
-    PerspectiveCamera(glm::vec3 position, glm::vec3 target, glm::vec3 worldUp) {
+    PerspectiveCamera(glm::vec3 position, glm::vec3 target, glm::vec3 worldUp, bool istpp) {
         this->position = position;
         this->target = target;
         this->worldUp = worldUp;
-        projection = base_projection;
+        if (istpp)
+            projection = base_projection_tpp;
+        else
+            projection = base_projection_fpp;
     }
 
     // Revolve the camera based on a given pitch and yaw
-    void revolve(double yawDelta, double pitchDelta) {
+    void revolve(double yawDelta, double pitchDelta, glm::vec3 playerpos) {
         // Distance from focal point
         static float distance = 1.5;
 
@@ -33,8 +42,41 @@ public:
         if (pitch < -89.f)
             pitch = -89.f;
 
-        position[0] = cos(glm::radians(yaw)) * cos(glm::radians(pitch)) * distance;
+        position[0] = -cos(glm::radians(yaw)) * cos(glm::radians(pitch)) * distance;
         position[1] = sin(glm::radians(pitch) * -1) * distance;
-        position[2] = sin(glm::radians(yaw)) * cos(glm::radians(pitch)) * distance;
+        position[2] = -sin(glm::radians(yaw)) * cos(glm::radians(pitch)) * distance;
+
+        position += playerpos;
+
+        target = playerpos;
     }
+
+    void adjustCameraTpp(glm::vec3 playerpos, glm::vec3 playerrot) {
+        static float distance = 1.5;
+
+        position[0] = -sin(glm::radians(playerrot.x)) * distance + playerpos.x;
+        position[1] = playerpos.y + 0.75f;
+        position[2] = -cos(glm::radians(playerrot.x)) * distance + playerpos.z;
+
+        target = playerpos;
+    }
+
+    void adjustCameraFpp(glm::vec3 playerpos, glm::vec3 playerrot) {
+        float newRot = playerrot.x - 180.f;
+
+
+        float offsetX = -sin(glm::radians(newRot));
+        float offsetY = -cos(glm::radians(newRot));
+
+        position = playerpos;
+
+        position[0] += offsetX;
+        position[2] += offsetY;
+
+        target = position;
+
+        target[0] += offsetX;
+        target[2] += offsetY;
+    }
+
 };

@@ -410,7 +410,7 @@ public:
         glDrawArrays(GL_TRIANGLES, 0, fullVertexData.size() / 14);
     }
 
-    void modPos(int index, glm::vec3 value) {
+    void modPos(glm::vec3 value) {
         position += value;
     }
 
@@ -421,5 +421,9 @@ public:
     void cleanup() {
         glDeleteVertexArrays(1, &VAO);
         glDeleteBuffers(1, &VBO);
+    }
+
+    glm::vec3 getRotation() {
+        return rotation;
     }
 };
