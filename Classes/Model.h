@@ -285,6 +285,12 @@ public:
     void setPivotObject() {
         pivotPoint = OBJECT;
     }
+    void setPosition(glm::vec3 position) {
+        this->position = position;
+    }
+    void setRotation(glm::vec3 rotation) {
+        this->rotation = rotation;
+    }
 
     // Draw models at given translation locations
     void draw(unsigned int transformationLoc) {

@@ -588,6 +588,8 @@
     <None Include="Dependencies\include\glm\gtx\vector_angle.inl" />
     <None Include="Dependencies\include\glm\gtx\vector_query.inl" />
     <None Include="Dependencies\include\glm\gtx\wrap.inl" />
+    <None Include="Shaders\filter.frag" />
+    <None Include="Shaders\filter.vert" />
     <None Include="Shaders\lightSource.frag" />
     <None Include="Shaders\lightSource.vert" />
     <None Include="Shaders\npc.frag" />

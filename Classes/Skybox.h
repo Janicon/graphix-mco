@@ -41,6 +41,7 @@ private:
         3,7,6,
         6,2,3
     };
+    glm::vec4 filterColor;
 
 public:
 	Skybox() {
@@ -106,9 +107,15 @@ public:
         stbi_set_flip_vertically_on_load(true);
         
         shader = ShaderManager("skybox");
+
+        filterColor = glm::vec4(0.05, 0.1, .5, 0.5);
 	}
 
-    void draw(glm::mat4 viewMatrix) {
+    void resetFilterColor(glm::vec4 color = glm::vec4(0.05, 0.1, .5, 0.5)) {
+        filterColor = color;
+    }
+
+    void draw(glm::mat4 viewMatrix, int isFPP) {
         glDepthMask(GL_FALSE);
         glDepthFunc(GL_LEQUAL);
 
@@ -119,6 +126,8 @@ public:
 
         shader.sendMat4("projection", default_projection);
         shader.sendMat4("view", sky_view);
+        shader.sendVec4("filterColor", filterColor);
+        shader.sendInt("isFPP", isFPP);
 
         glBindVertexArray(VAO);
         glActiveTexture(GL_TEXTURE0);

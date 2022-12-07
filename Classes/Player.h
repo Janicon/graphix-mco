@@ -4,6 +4,7 @@ private:
     enum cameraModes { FPP, TPP };
     float linear[3]{ 0.0014, 0.007, 0.014 };
     float quadratic[3]{ 0.000007, 0.0002, 0.0007 };
+    float lightLevels[3]{ 1, 1.5, 3 };
 
     Model obj;
     PerspectiveCamera tpp = PerspectiveCamera(
@@ -57,10 +58,12 @@ public:
     }
 
     /* Getters */
+    bool isFPP() {
+        return activeCamera == FPP;
+    }
     Model getPlayer() {
         return obj;
     }
-
     PerspectiveCamera getActiveCamera() {
         if (activeCamera == FPP)
             return fpp;
@@ -136,9 +139,9 @@ public:
             // Change flashlight brightness
             case GLFW_KEY_F:
                 lightLevel++;
-                flashlight.setAttenuation(linear[lightLevel], quadratic[lightLevel]);
                 if (lightLevel > 2)
                     lightLevel = 0;
+                flashlight.setAttenuation(linear[lightLevel], quadratic[lightLevel]);
                 break;
         }
 

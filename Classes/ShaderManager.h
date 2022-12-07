@@ -70,6 +70,10 @@ public:
 		glUniform3fv(glGetUniformLocation(shaderProgram, varname.c_str()), 1, glm::value_ptr(value));
 	}
 
+	void sendVec4(std::string varname, glm::vec3 value) {
+		glUniform4fv(glGetUniformLocation(shaderProgram, varname.c_str()), 1, glm::value_ptr(value));
+	}
+
 	void sendMat4(std::string varname, glm::mat4 value) {
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, varname.c_str()), 1, GL_FALSE, glm::value_ptr(value));
 	}

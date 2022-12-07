@@ -21,6 +21,10 @@ uniform float spotLight_specStr;
 uniform float spotLight_specPhong;
 uniform float cutoff;
 uniform float outercutoff;
+
+uniform int isFPP;
+uniform vec4 filterColor;
+
 in vec2 texCoord;
 in vec3 normCoord;
 in vec3 fragPos;
@@ -30,10 +34,19 @@ out vec4 FragColor;
 void main() {
 	// Current pixel colors
 	vec4 pixelColor = texture(tex0, texCoord);
-	
+
 	// Alpha cutoff
 	if(pixelColor.a < 0.1)
 		discard; // acts like return;
+
+	// Manual implementation of glBlendFunc()
+	if(isFPP == 1) {
+		vec4 factor1 = vec4(1.0f) - pixelColor;
+		vec4 factor2 = vec4(1.0f) - pixelColor.a;
+
+		pixelColor = (filterColor * factor1) - (pixelColor * factor2);
+		pixelColor.a = 1.0f;
+	}
 	
 	// Lighting
 	vec3 normal = normalize(normCoord);

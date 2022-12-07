@@ -71,6 +71,8 @@ int main(void)
     Skybox skybox = Skybox();
     stbi_set_flip_vertically_on_load(true);
 
+    Model filter = Model("3D/plane.obj", "3D/filter.png",
+        glm::vec3(0), 1.f, glm::vec3(0));
     player = Player("3D/fish.obj", "3D/brickwall.jpg",
         glm::vec3(0), 0.1f, glm::vec3(0, 0, 0),
         GL_RGB);
@@ -95,6 +97,7 @@ int main(void)
     glfwSetKeyCallback(window, Key_Callback);
     glfwSetCursorPosCallback(window, CursorCallback);
 
+    ShaderManager filterShader = ShaderManager("filter");
     ShaderManager playerShader = ShaderManager("player");
     ShaderManager npcShader = ShaderManager("npc");
     ShaderManager lightShader = ShaderManager("lightSource");
@@ -109,6 +112,7 @@ int main(void)
         .2f, glm::vec3(1),
         3.f, 25.f
     );
+    glm::vec4 nvFilter = glm::vec4(0.05, 0.25, .05, 0.4);
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -118,6 +122,7 @@ int main(void)
         
         // Blend tester http://www.andersriggelsen.dk/glblendfunc.php
         glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glBlendEquation(GL_FUNC_ADD);
 
         // Change active camera based on mode
@@ -127,8 +132,14 @@ int main(void)
             activeCamera = (Camera)player.getActiveCamera();
 
         /*** Draw skybox ***/
-        //skybox.draw(player.getActiveCamera().getViewMatrix());
-        skybox.draw(activeCamera.getViewMatrix());
+        if (player.isFPP()) {
+            skybox.resetFilterColor(nvFilter);
+            skybox.draw(activeCamera.getViewMatrix(), 1);
+        }
+        else {
+            skybox.resetFilterColor();
+            skybox.draw(activeCamera.getViewMatrix(), 0);
+        }
 
         /*** Draw player submarine ***/
         // Draw models
@@ -145,7 +156,7 @@ int main(void)
         playerShader.sendVec3("dirLight_ambientColor", directionLight.getAmbientColor());
         playerShader.sendFloat("dirLight_specStr", directionLight.getSpecStr());
         playerShader.sendFloat("dirLight_specPhong", directionLight.getSpecPhong());
-
+        
         // Draw object model
         playerShader.sendMat4("projection", activeCamera.getProjection());
         playerShader.sendMat4("view", activeCamera.getViewMatrix());
@@ -186,8 +197,36 @@ int main(void)
         npcShader.sendMat4("projection", activeCamera.getProjection());
         npcShader.sendMat4("view", activeCamera.getViewMatrix());
 
+        if (player.isFPP()) {
+            npcShader.sendVec4("filterColor", nvFilter);
+            npcShader.sendInt("isFPP", 1);
+        }
+        else
+            npcShader.sendInt("isFPP", 0);
         sphere.draw(npcShader.getUniformLoc("transform"));
 
+        /*** Draw filter in FPP mode ***/
+        /*
+        if (player.isFPP()) {
+            // Set filter in front of camera
+            glm::vec3 rot = player.getPlayer().getRotation();
+            glm::vec3 pos = activeCamera.getPosition() + glm::vec3(
+                0.5 * sin(glm::radians(rot.x)),
+                0,
+                0.5 * cos(glm::radians(rot.x)));;
+
+            filter.setPosition(pos);
+            filter.setRotation(rot);
+            glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_DST_ALPHA);
+            filterShader.useShaderProgram();
+
+            filterShader.sendMat4("projection", activeCamera.getProjection());
+            filterShader.sendMat4("view", activeCamera.getViewMatrix());
+            filter.draw(filterShader.getUniformLoc("transform"));
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        }
+        */
+        
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
 

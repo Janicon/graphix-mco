@@ -28,7 +28,6 @@ void main() {
 		discard; // acts like return;
 	
 	// Lighting
-	//vec3 normal = normalize(normCoord);
 	vec3 normal = texture(tex1, texCoord).rgb;
 	normal = normalize(normal * 2.0 - 1.0);
 	normal = normalize(TBN * normal);
