@@ -14,7 +14,7 @@ private:
         .1f,
         100.f
     );
-    float pitch = 0.f;
+    float pitch = -25.f;
     float yaw = 90.f;
 
 public:
@@ -79,9 +79,9 @@ public:
         target[2] += offsetY;
     }
 
-    void setYawPitch() {
+    void setYawPitch(glm::vec3 playerrot) {
         pitch = -25.f;
-        yaw = 90.f;
+        yaw = 90.f - playerrot.x;
     }
 
 };

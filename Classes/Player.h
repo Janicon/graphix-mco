@@ -55,6 +55,7 @@ public:
         repositionLight();
     }
 
+    /* Getters */
     Model getPlayer() {
         return obj;
     }
@@ -70,12 +71,13 @@ public:
         return flashlight;
     }
 
+    /* Methods */
     // TODO: Move light along with model
     void parseKey(int key, int action) {
         // Register only key press and hold
         if (action == GLFW_RELEASE)
             return;
-
+        // how fast the player will move
         static float speed = 0.05;
         switch (key) {
             // Change active camera
@@ -90,26 +92,34 @@ public:
             // WS - main object z position
             // QE - main object y position
             // AD - main object x rotation
+
+            //ascends the player
             case GLFW_KEY_Q:
                 if (!(obj.getPos().y > 0)) {
                     obj.modPos(glm::vec3(0, 0.1f, 0));
                     cout << "Current Depth: " << obj.getPos().y << endl;
                 }
                 break;
+            //go forward towards where the player is facing based on the x-axis rotation of the player
+            //uses sine and cosine of player's x-axis to get the angle where it is heading to
             case GLFW_KEY_W:
                 glm::vec3 rotation_w = obj.getRotation();
-                obj.modPos(glm::vec3(
-                    speed * sin(glm::radians(rotation_w.x)),
+                obj.modPos(glm::vec3( 
+                    speed * sin(glm::radians(rotation_w.x)), 
                     0,
                     speed * cos(glm::radians(rotation_w.x))));
                 break;
+            //descends the player
             case GLFW_KEY_E:
                 obj.modPos(glm::vec3(0, -0.1f, 0));
                 cout << "Current Depth: " << obj.getPos().y << endl;
                 break;
+            //turns the player to the left
             case GLFW_KEY_A:
                 obj.adjustRotate(glm::vec3(1.f, 0, 0));
                 break;
+            //go backward opposite where the player is facing based on the x-axis rotation of the player
+            //uses sine and cosine of player's x-axis to get the angle where it is heading to
             case GLFW_KEY_S:
                 glm::vec3 rotation_s = obj.getRotation();
                 obj.modPos(glm::vec3(
@@ -117,6 +127,7 @@ public:
                     0,
                     -speed * cos(glm::radians(rotation_s.x))));
                 break;
+            //turns the player to the right
             case GLFW_KEY_D:
                 obj.adjustRotate(glm::vec3(-1.f, 0, 0));
                 break;
@@ -150,13 +161,14 @@ public:
         int mouseButton = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
         if (mouseButton == GLFW_PRESS && !lookMode) {
             lookMode = true;
-
+            //resets pitch and yaw including player's x-axis rotation 
+            tpp.setYawPitch(obj.getRotation());
             // Set starting position for cursor
             glfwGetCursorPos(window, &cursorX, &cursorY);
         }
         else if (mouseButton == GLFW_RELEASE) {
+            //resets to default camera view after mouse release
             tpp.adjustCameraTpp(obj.getPos(), obj.getRotation());
-            tpp.setYawPitch();
             lookMode = false;
         }
 
@@ -169,8 +181,7 @@ public:
         double oldY = cursorY;
         glfwGetCursorPos(window, &cursorX, &cursorY);
 
-        
-
+        //updates camera position based on mouse position
         tpp.revolve(sensitivity * (cursorX - oldX), sensitivity * (oldY - cursorY), obj.getPos());
     }
 

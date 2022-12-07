@@ -76,6 +76,15 @@ int main(void)
     Model sphere = Model("3D/ball.obj", "3D/ball.jpg",
         glm::vec3(0, 0, -2), 0.01f, glm::vec3(0),
         GL_RGB);
+
+    Model elf = Model("3D/elf.obj", "3D/ball.jpg",
+        glm::vec3(1, -2, -4), 0.01f, glm::vec3(0),
+        GL_RGB);
+
+    Model knife = Model("3D/knife.obj", "3D/knife.jpg",
+        glm::vec3(2, -2, -2), 1.f, glm::vec3(0),
+        GL_RGB);
+
     // Set player camera as default
     Camera activeCamera = (Camera)player.getActiveCamera();
 
@@ -204,6 +213,7 @@ void Key_Callback(GLFWwindow* window,
         isTopDown = !isTopDown;
 
     if (!isTopDown) {
+        //changes player position and camera view based on the key and action
         player.parseKey(key, action);
         return;
     }
@@ -256,4 +266,6 @@ void CursorCallback(GLFWwindow* window, double xpos, double ypos) {
     glfwGetCursorPos(window, &cursorX, &cursorY);
 
     orthoCam.dragCamera(-sensitivity * (oldY - cursorY));
+    //changes third person camera view based on mouse position
+    player.parseCursor(window, xpos, ypos);
 }
