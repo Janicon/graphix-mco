@@ -23,7 +23,7 @@ using namespace std;
 #include "Classes/OrthographicCamera.h"
 #include "Classes/Light.h"
 #include "Classes/DirectionLight.h"
-#include "Classes/PointLight.h"
+#include "Classes/SpotLight.h"
 #include "Classes/Player.h"
 
 /* Global variables */
@@ -169,15 +169,15 @@ int main(void)
         npcShader.sendFloat("dirLight_specStr", directionLight.getSpecStr());
         npcShader.sendFloat("dirLight_specPhong", directionLight.getSpecPhong());
 
-        // Point light variables
-        npcShader.sendVec3("pointLight_position", player.getFlashlight().getPos());
-        npcShader.sendVec3("pointLight_color", player.getFlashlight().getColor());
-        npcShader.sendFloat("pointLight_linear", player.getFlashlight().getLinear());
-        npcShader.sendFloat("pointLight_quadratic", player.getFlashlight().getQuadratic());
-        npcShader.sendFloat("pointLight_ambientStr", player.getFlashlight().getAmbientStr());
-        npcShader.sendVec3("pointLight_ambientColor", player.getFlashlight().getAmbientColor());
-        npcShader.sendFloat("pointLight_specStr", player.getFlashlight().getSpecStr());
-        npcShader.sendFloat("pointLight_specPhong", player.getFlashlight().getSpecPhong());
+        // Spot light variables
+        npcShader.sendVec3("spotLight_position", player.getFlashlight().getPos());
+        npcShader.sendVec3("spotLight_color", player.getFlashlight().getColor());
+        npcShader.sendFloat("spotLight_linear", player.getFlashlight().getLinear());
+        npcShader.sendFloat("spotLight_quadratic", player.getFlashlight().getQuadratic());
+        npcShader.sendFloat("spotLight_ambientStr", player.getFlashlight().getAmbientStr());
+        npcShader.sendVec3("spotLight_ambientColor", player.getFlashlight().getAmbientColor());
+        npcShader.sendFloat("spotLight_specStr", player.getFlashlight().getSpecStr());
+        npcShader.sendFloat("spotLight_specPhong", player.getFlashlight().getSpecPhong());
 
         npcShader.sendFloat("cutoff", glm::cos(glm::radians(7.5f)));
         npcShader.sendFloat("outercutoff", glm::cos(glm::radians(17.5f)));

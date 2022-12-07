@@ -1,14 +1,14 @@
 #pragma once
-class PointLight : public Light {
+class SpotLight : public Light {
 private:
     glm::vec3 position;
     float linear;
     float quadratic;
 
 public:
-    PointLight() {}
+    SpotLight() {}
 
-    PointLight(glm::vec3 position, glm::vec3 color,
+    SpotLight(glm::vec3 position, glm::vec3 color,
         float ambientStr, glm::vec3 ambientColor,
         float specStr, float specPhong) {
         this->position = position;

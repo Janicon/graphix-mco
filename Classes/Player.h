@@ -16,7 +16,7 @@ private:
         glm::vec3(0),
         glm::vec3(0, 1, 0),
         false);
-    PointLight flashlight;
+    SpotLight flashlight;
 
     // User control
     cameraModes activeCamera = TPP;
@@ -47,7 +47,7 @@ public:
         obj.loadNorm("3D/brickwall_normal.jpg", GL_RGB);
         obj.setPivotObject();
 
-        flashlight = PointLight(
+        flashlight = SpotLight(
             glm::vec3(0), glm::vec3(1), // Pos to be overriden
             .1f, glm::vec3(1),
             1.f, 32.f
@@ -68,7 +68,7 @@ public:
             return tpp;
     }
 
-    PointLight getFlashlight() {
+    SpotLight getFlashlight() {
         return flashlight;
     }
 
