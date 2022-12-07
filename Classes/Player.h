@@ -154,20 +154,24 @@ public:
             // Set starting position for cursor
             glfwGetCursorPos(window, &cursorX, &cursorY);
         }
-        else if (mouseButton == GLFW_RELEASE)
+        else if (mouseButton == GLFW_RELEASE) {
+            tpp.adjustCameraTpp(obj.getPos(), obj.getRotation());
+            tpp.setYawPitch();
             lookMode = false;
+        }
 
         // Proceed if freelook is unlocked
-        if (!lookMode) {
-            tpp.adjustCameraTpp(obj.getPos(), obj.getRotation());
+        if (!lookMode) 
             return;
-        }
 
         // Move pitch and yaw depending on how far cursor moves
         double oldX = cursorX;
         double oldY = cursorY;
         glfwGetCursorPos(window, &cursorX, &cursorY);
 
+        
+
+        //tpp.revolve(sensitivity * (cursorX - oldX), sensitivity * (oldY - cursorY), obj.getPos());
         tpp.revolve(sensitivity * (cursorX - oldX), sensitivity * (oldY - cursorY), obj.getPos());
     }
 
