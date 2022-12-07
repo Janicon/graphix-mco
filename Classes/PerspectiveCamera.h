@@ -31,7 +31,7 @@ public:
     // Revolve the camera based on a given pitch and yaw
     void revolve(double yawDelta, double pitchDelta, glm::vec3 playerpos) {
         // Distance from focal point
-        static float distance = 1.5;
+        static float distance = 1.7;
 
         yaw += yawDelta;
         pitch += pitchDelta;
@@ -77,6 +77,11 @@ public:
 
         target[0] += offsetX;
         target[2] += offsetY;
+    }
+
+    void setYawPitch() {
+        pitch = -25.f;
+        yaw = 90.f;
     }
 
 };
