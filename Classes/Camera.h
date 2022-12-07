@@ -27,11 +27,11 @@ public:
 	}
 
 	/* Setters */
-	void setPos(glm::vec3 const& position) {
+	void setPos(glm::vec3 position) {
 		this->position = position;
 	}
 	void setTarget(glm::vec3 target) {
-		this->position = target;
+		this->target = target;
 	}
 	void setWorldUp(glm::vec3 worldUp) {
 		this->worldUp = worldUp;

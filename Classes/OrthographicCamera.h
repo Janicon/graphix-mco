@@ -7,7 +7,7 @@ private:
         -2.0f, 2.0f,
         -0.1f, 100.0f
     );
-    float angle = 90;
+    float angle = 90.f;
 
 public:
     OrthographicCamera(glm::vec3 position, glm::vec3 target, glm::vec3 worldUp) {
@@ -22,20 +22,14 @@ public:
         this->target += position;
     }
 
-    void dragCamera(float angle) {
-        this->angle += angle;
+    void dragCamera(float yValue, float xValue) {
 
-        // Limit pitch to straight up and down
-        if (this->angle > 90.f) {
-            this->angle = 90.f;
-            return;
-        }
-        if (this->angle < 15) {
-            this->angle = 15.f;
-            return;
-        }
+        this->position.x += xValue;
+        this->target.x += xValue;
 
-        position[1] = target[1] + sin(glm::radians(this->angle));
-        position[2] = target[2] + cos(glm::radians(this->angle));
+        this->position.z += yValue;
+        this->target.z += yValue;
+
+        
     }
 };

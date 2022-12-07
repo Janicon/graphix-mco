@@ -34,6 +34,7 @@ OrthographicCamera orthoCam = OrthographicCamera(
     glm::vec3(0),
     glm::vec3(0, 0, -1.f));
 
+
 /* User controls */
 bool isTopDown = false;
 bool lookMode = false;
@@ -209,15 +210,26 @@ void Key_Callback(GLFWwindow* window,
     if (action == GLFW_RELEASE)
         return;
     
-    if (key == GLFW_KEY_2)
+    if (key == GLFW_KEY_2) {
         isTopDown = !isTopDown;
+
+
+        //Update top view camera position and target to player
+        if (isTopDown) {
+            //get position of player 
+            glm::vec3 playerPos = player.getPlayer().getPos();
+
+            orthoCam.setPos(glm::vec3(playerPos.x, 1.f, playerPos.z));
+            orthoCam.setTarget(glm::vec3(playerPos.x, 0, playerPos.z));
+        }
+    }
 
     if (!isTopDown) {
         //changes player position and camera view based on the key and action
         player.parseKey(key, action);
         return;
     }
-    
+
     switch (key) {
     //Top View Camera Pan Controls
         case GLFW_KEY_W:
@@ -241,7 +253,7 @@ void CursorCallback(GLFWwindow* window, double xpos, double ypos) {
         player.parseCursor(window, xpos, ypos);
 
     // X degrees per pixel
-    static float sensitivity = 0.15;
+    static float sensitivity = 0.005;
 
     // Unlock freelook on mouse press, lock on release
     int mouseButton = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
@@ -265,7 +277,8 @@ void CursorCallback(GLFWwindow* window, double xpos, double ypos) {
     double oldY = cursorY;
     glfwGetCursorPos(window, &cursorX, &cursorY);
 
-    orthoCam.dragCamera(-sensitivity * (oldY - cursorY));
+    orthoCam.dragCamera(-sensitivity * (oldY - cursorY), -sensitivity * (oldX - cursorX));
+
     //changes third person camera view based on mouse position
-    player.parseCursor(window, xpos, ypos);
+    //player.parseCursor(window, xpos, ypos);
 }
