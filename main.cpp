@@ -189,7 +189,7 @@ void Key_Callback(GLFWwindow* window,
     }
     
     switch (key) {
-    //Top View Camera Drag and Pan Controls
+    //Top View Camera Pan Controls
         case GLFW_KEY_Q:
             orthoCam.dragCamera(-1.f);
             break;
@@ -212,5 +212,34 @@ void Key_Callback(GLFWwindow* window,
 }
 
 void CursorCallback(GLFWwindow* window, double xpos, double ypos) {
+    // Send input to player
+    if (!isTopDown)
     player.parseCursor(window, xpos, ypos);
+
+    // X degrees per pixel
+    static float sensitivity = 0.15;
+
+    // Unlock freelook on mouse press, lock on release
+    int mouseButton = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
+    if (mouseButton == GLFW_PRESS && !lookMode) {
+        lookMode = true;
+
+        // Set starting position for cursor
+        glfwGetCursorPos(window, &cursorX, &cursorY);
+    }
+    else if (mouseButton == GLFW_RELEASE)
+        lookMode = false;
+
+    // Proceed if freelook is unlocked
+    if (!lookMode) {
+        //tpp.adjustCameraTpp(obj.getPos(), obj.getRotation());
+        return;
+    }
+
+    // Move pitch and yaw depending on how far cursor moves
+    double oldX = cursorX;
+    double oldY = cursorY;
+    glfwGetCursorPos(window, &cursorX, &cursorY);
+
+    orthoCam.dragCamera(-sensitivity * (oldY - cursorY));
 }
