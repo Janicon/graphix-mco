@@ -2,7 +2,8 @@
 class Player {
 private:
     enum cameraModes { FPP, TPP };
-    float lightLevels[3]{ .5, 1.25, 2 };
+    float linear[3]{ 0.0014, 0.007, 0.014 };
+    float quadratic[3]{ 0.000007, 0.0002, 0.0007 };
 
     Model obj;
     PerspectiveCamera tpp = PerspectiveCamera(
@@ -51,7 +52,7 @@ public:
             .1f, glm::vec3(1),
             1.f, 32.f
         );
-        flashlight.setIntensity(lightLevels[lightLevel]);
+        flashlight.setAttenuation(linear[lightLevel], quadratic[lightLevel]);
         repositionLight();
     }
 
@@ -135,7 +136,7 @@ public:
             // Change flashlight brightness
             case GLFW_KEY_F:
                 lightLevel++;
-                flashlight.setIntensity(lightLevels[lightLevel]);
+                flashlight.setAttenuation(linear[lightLevel], quadratic[lightLevel]);
                 if (lightLevel > 2)
                     lightLevel = 0;
                 break;

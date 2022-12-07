@@ -75,7 +75,7 @@ int main(void)
         glm::vec3(0), 0.1f, glm::vec3(0, 0, 0),
         GL_RGB);
     Model sphere = Model("3D/ball.obj", "3D/ball.jpg",
-        glm::vec3(0, 0, -2), 0.01f, glm::vec3(0),
+        glm::vec3(0, 0, -10), 0.1f, glm::vec3(0),
         GL_RGB);
 
     Model elf = Model("3D/elf.obj", "3D/ball.jpg",
@@ -172,11 +172,15 @@ int main(void)
         // Point light variables
         npcShader.sendVec3("pointLight_position", player.getFlashlight().getPos());
         npcShader.sendVec3("pointLight_color", player.getFlashlight().getColor());
-        npcShader.sendFloat("pointLight_strength", player.getFlashlight().getIntensity());
+        npcShader.sendFloat("pointLight_linear", player.getFlashlight().getLinear());
+        npcShader.sendFloat("pointLight_quadratic", player.getFlashlight().getQuadratic());
         npcShader.sendFloat("pointLight_ambientStr", player.getFlashlight().getAmbientStr());
         npcShader.sendVec3("pointLight_ambientColor", player.getFlashlight().getAmbientColor());
         npcShader.sendFloat("pointLight_specStr", player.getFlashlight().getSpecStr());
         npcShader.sendFloat("pointLight_specPhong", player.getFlashlight().getSpecPhong());
+
+        npcShader.sendFloat("cutoff", glm::cos(glm::radians(7.5f)));
+        npcShader.sendFloat("outercutoff", glm::cos(glm::radians(17.5f)));
 
         npcShader.sendInt("tex0", 0);
         npcShader.sendMat4("projection", activeCamera.getProjection());

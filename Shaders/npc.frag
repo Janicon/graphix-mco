@@ -13,12 +13,14 @@ uniform float dirLight_specPhong;
 
 uniform vec3 pointLight_position;
 uniform vec3 pointLight_color;
-uniform float pointLight_strength;
+uniform float pointLight_linear;
+uniform float pointLight_quadratic;
 uniform float pointLight_ambientStr;
 uniform vec3 pointLight_ambientColor;
 uniform float pointLight_specStr;
 uniform float pointLight_specPhong;
-
+uniform float cutoff;
+uniform float outercutoff;
 in vec2 texCoord;
 in vec3 normCoord;
 in vec3 fragPos;
@@ -56,6 +58,11 @@ void main() {
 	// Save calculated direction light scaled by light strength
 	vec3 result = (diffuse + ambientCol + specCol) * dirLight_strength;
 
+	// Spot light calculations
+	float theta = dot(viewDir, normalize(-pointLight_position));
+	float epsilon = cutoff - outercutoff;
+	float intensity = clamp((theta - outercutoff) / epsilon, 0.0, 1.0); 
+
 	// Point light calculations
 	lightDir = normalize(pointLight_position - fragPos);
 	diff = max(
@@ -73,18 +80,22 @@ void main() {
 	);
 	specCol = spec * pointLight_specStr * pointLight_color;
 
+	specCol *= intensity;
+	diffuse *= intensity;
+
 	// Calculate distance of light to object to light
 	float distance = length(pointLight_position - fragPos);
 	// Calculate attenuation scaled by light strength
-	float attenuation = 1.0 / (distance * distance) * pointLight_strength;
+	float attenuation = 1.0f / 1.0f + pointLight_linear * (distance * distance) + pointLight_quadratic;
 
 	// Scale lighting by attenuation value
 	specCol *= attenuation;
 	diffuse *= attenuation;
 	ambientCol *= attenuation;
 
+
 	// Add calculated point light to existing direction light colors
-	result += specCol + diffuse + ambientCol;
+	result += (diffuse + ambientCol + specCol);
 
 	FragColor = vec4(result, 1.0f) * pixelColor;
 }
