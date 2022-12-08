@@ -64,17 +64,12 @@ public:
     void adjustCameraFpp(glm::vec3 playerpos, glm::vec3 playerrot) {
         float newRot = playerrot.x - 180.f;
 
-
         float offsetX = -sin(glm::radians(newRot));
         float offsetY = -cos(glm::radians(newRot));
 
         position = playerpos;
 
-        position[0] += offsetX;
-        position[2] += offsetY;
-
         target = position;
-
         target[0] += offsetX;
         target[2] += offsetY;
     }

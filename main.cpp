@@ -80,14 +80,16 @@ int main(void)
         {0,-450,800}
 
     */
-    player = Player("3D/fish.obj", "3D/brickwall.jpg",
-        glm::vec3(0), 0.1f, glm::vec3(0, 0, 0),
-        GL_RGB);
-    Model sphere = Model("3D/ball.obj", "3D/ball.jpg",
-        glm::vec3(0, 0, -10), 0.1f, glm::vec3(0),
-        GL_RGB);
+    player = Player("3D/fish.obj",
+        "3D/brickwall.jpg", GL_RGB,
+        "3D/brickwall_normal.jpg", GL_RGB,
+        glm::vec3(0), 0.1f, glm::vec3(0, 0, 0));
 
-
+    Model sphere = Model("3D/ball.obj",
+        "3D/ball.jpg", GL_RGB,
+        "", GL_RGB,
+        glm::vec3(0, 0, -10), 0.1f, glm::vec3(0));
+    sphere.initBuffers();
 
     // Positions of enemy models
     float enemiesPos[6][3] =
@@ -131,21 +133,22 @@ int main(void)
     };
     
     std::vector<Model> enemies;
-
+    
     //insert crab model to enemies vector
-    Model crab = Model(filenames[0][0], filenames[0][1],
-        glm::make_vec3(enemiesPos[0]), enemiesSca[0], enemiesRot[0],
-        GL_RGBA);
-    crab.setPivotObject();
+    Model crab = Model(filenames[0][0],
+        filenames[0][1], GL_RGBA,
+        "", GL_RGB,
+        glm::make_vec3(enemiesPos[0]), enemiesSca[0], enemiesRot[0]);
+    crab.initBuffers();
     enemies.push_back(crab);
 
     //Push back remaining enemies
     Model models[5];
     for (int i = 0; i < 5; i++) {
-        models[i] = Model(filenames[i+1][0], filenames[i+1][1],
-            glm::make_vec3(enemiesPos[i+1]), enemiesSca[i+1], enemiesRot[i+1],
-            GL_RGB);
-        models[i].setPivotObject();
+        models[i] = Model(filenames[i+1][0],
+            filenames[i+1][1], GL_RGB,
+            "", GL_RGB,
+            glm::make_vec3(enemiesPos[i+1]), enemiesSca[i+1], enemiesRot[i+1]);
         enemies.push_back(models[i]);
     }
   
@@ -233,9 +236,10 @@ int main(void)
         playerShader.sendMat4("projection", activeCamera.getProjection());
         playerShader.sendMat4("view", activeCamera.getViewMatrix());
 
-        player.getPlayer().draw(playerShader.getUniformLoc("transform"),
-            playerShader.getUniformLoc("tex0"),
-            playerShader.getUniformLoc("tex1"));
+        if(!player.isFPP())
+            player.getPlayer().draw(playerShader.getUniformLoc("transform"),
+                playerShader.getUniformLoc("tex0"),
+                playerShader.getUniformLoc("tex1"));
         
         /*** Draw relics ***/
         npcShader.useShaderProgram();
@@ -265,7 +269,6 @@ int main(void)
         npcShader.sendFloat("cutoff", glm::cos(glm::radians(7.5f)));
         npcShader.sendFloat("outercutoff", glm::cos(glm::radians(17.5f)));
 
-        npcShader.sendInt("tex0", 0);
         npcShader.sendMat4("projection", activeCamera.getProjection());
         npcShader.sendMat4("view", activeCamera.getViewMatrix());
 
@@ -278,30 +281,9 @@ int main(void)
 
         //Draw enemy models
         for (int i = 0; i < 6; i++) {
-            enemies[i].draw(npcShader.getUniformLoc("transform"));
+            enemies[i].draw(npcShader.getUniformLoc("transform"),
+                npcShader.getUniformLoc("tex0"));
         }
-
-        /*** Draw filter in FPP mode ***/
-        /*
-        if (player.isFPP()) {
-            // Set filter in front of camera
-            glm::vec3 rot = player.getPlayer().getRotation();
-            glm::vec3 pos = activeCamera.getPosition() + glm::vec3(
-                0.5 * sin(glm::radians(rot.x)),
-                0,
-                0.5 * cos(glm::radians(rot.x)));;
-
-            filter.setPosition(pos);
-            filter.setRotation(rot);
-            glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_DST_ALPHA);
-            filterShader.useShaderProgram();
-
-            filterShader.sendMat4("projection", activeCamera.getProjection());
-            filterShader.sendMat4("view", activeCamera.getViewMatrix());
-            filter.draw(filterShader.getUniformLoc("transform"));
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        }
-        */
         
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
