@@ -132,7 +132,7 @@ int main(void)
             activeCamera = (Camera)player.getActiveCamera();
 
         /*** Draw skybox ***/
-        if (player.isFPP()) {
+        if (player.isFPP() && !isTopDown) {
             skybox.resetFilterColor(nvFilter);
             skybox.draw(activeCamera.getViewMatrix(), 1);
         }
@@ -197,7 +197,7 @@ int main(void)
         npcShader.sendMat4("projection", activeCamera.getProjection());
         npcShader.sendMat4("view", activeCamera.getViewMatrix());
 
-        if (player.isFPP()) {
+        if (player.isFPP() && !isTopDown) {
             npcShader.sendVec4("filterColor", nvFilter);
             npcShader.sendInt("isFPP", 1);
         }

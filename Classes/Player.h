@@ -26,9 +26,9 @@ private:
     double cursorX, cursorY;
 
     void repositionLight() {
-        glm::vec3 newPos = obj.getPos();
+        //glm::vec3 newPos = obj.getPos();
         float facing = obj.getRotation().x;
-        newPos += glm::vec3(
+        glm::vec3 newPos = glm::vec3(
             0.5 * sin(glm::radians(facing)),
             0,
             0.5 * cos(glm::radians(facing)));
@@ -82,7 +82,7 @@ public:
         if (action == GLFW_RELEASE)
             return;
         // how fast the player will move
-        static float speed = 0.05;
+        static float speed = 0.5;
         switch (key) {
             // Change active camera
             case GLFW_KEY_1:

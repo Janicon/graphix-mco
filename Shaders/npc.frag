@@ -76,7 +76,7 @@ void main() {
 	float epsilon = cutoff - outercutoff;
 	float intensity = clamp((theta - outercutoff) / epsilon, 0.0, 1.0); 
 
-	// spot light calculations
+	// light calculations
 	lightDir = normalize(spotLight_position - fragPos);
 	diff = max(
 		dot(normal, lightDir),
@@ -93,6 +93,7 @@ void main() {
 	);
 	specCol = spec * spotLight_specStr * spotLight_color;
 
+	// Scale lighting by intensity value
 	specCol *= intensity;
 	diffuse *= intensity;
 
