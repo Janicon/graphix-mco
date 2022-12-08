@@ -34,11 +34,6 @@ private:
             0,
             0.5 * cos(glm::radians(facing)));
         flashlight.setPos(newPos);
-
-        glm::vec3 curPos = obj.getPos();
-        cout << "Object pos: " << curPos.x << "," << curPos.y << "," << curPos.z << endl;
-        cout << "Rotation  : " << facing << endl;
-        cout << "Light pos : " << newPos.x << "," << newPos.y << "," << newPos.z << endl << endl;
     }
 
 public:
@@ -105,7 +100,7 @@ public:
 
             //ascends the player
             case GLFW_KEY_Q:
-                if (!(obj.getPos().y > 0)) {
+                if (!(obj.getPos().y > -0.1)) {
                     obj.modPos(glm::vec3(0, 0.1f, 0));
                     cout << "Current Depth: " << obj.getPos().y << endl;
                 }
