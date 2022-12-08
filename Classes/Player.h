@@ -100,7 +100,7 @@ public:
 
             //ascends the player
             case GLFW_KEY_Q:
-                if (!(obj.getPos().y > 0)) {
+                if (!(obj.getPos().y > -0.1)) {
                     obj.modPos(glm::vec3(0, 0.5f, 0));
                     cout << "Current Depth: " << obj.getPos().y << endl;
                 }
