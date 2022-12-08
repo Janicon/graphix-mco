@@ -71,8 +71,15 @@ int main(void)
     Skybox skybox = Skybox();
     stbi_set_flip_vertically_on_load(true);
 
-    Model filter = Model("3D/plane.obj", "3D/filter.png",
-        glm::vec3(0), 1.f, glm::vec3(0));
+
+    /*
+        Positions for testing:
+        {0,0,-140}
+        {80,-200,250},
+        {-260,-240,415},
+        {0,-450,800}
+
+    */
     player = Player("3D/fish.obj", "3D/brickwall.jpg",
         glm::vec3(0), 0.1f, glm::vec3(0, 0, 0),
         GL_RGB);
@@ -80,13 +87,78 @@ int main(void)
         glm::vec3(0, 0, -10), 0.1f, glm::vec3(0),
         GL_RGB);
 
-    Model elf = Model("3D/elf.obj", "3D/ball.jpg",
-        glm::vec3(1, -2, -4), 0.01f, glm::vec3(0),
-        GL_RGB);
 
-    Model knife = Model("3D/knife.obj", "3D/knife.jpg",
-        glm::vec3(2, -2, -2), 1.f, glm::vec3(0),
-        GL_RGB);
+
+    // Positions of enemy models
+    float enemiesPos[6][3] =
+    {
+        {0.f,0.f,-150.f}, //
+        {120,-225,300}, //upper Y 1
+        {180,-275,380}, // upper Y 2
+        {-225,-195,375}, // lower Y 3
+        {-275,-260,435}, // lower Y 4
+        {0,-500,900}// Treasure
+    };
+
+    // Scales of enemy models
+    float enemiesSca[6] = {
+        5.f,
+        0.15f,
+        1.5f,
+        0.3f,
+        2.5f,
+        10.f
+    };
+
+    // Rotation of enemy models
+    glm::vec3 enemiesRot[6] =
+    {
+        {-90,0,0}, //
+        {-120,-45,0}, //upper Y 1
+        {45,-90,90}, // upper Y 2
+        {0,-90,0}, // lower Y 3
+        {-180,0,0}, // lower Y 4
+        {-90,0,0}// Treasure
+    };
+
+    std::string filenames[6][2] = {
+        {"3D/crab.obj", "3D/crab.png"},
+        {"3D/dolphin.obj", "3D/dolphin.jpg"},
+        {"3D/goldfish.obj", "3D/goldfish.jpg"},
+        {"3D/shark.obj", "3D/shark.jpg"},
+        {"3D/fish.obj", "3D/brickwall.jpg"},
+        {"3D/obelisk.obj", "3D/obelisk.jpg"}
+    };
+    
+    std::vector<Model> enemies;
+
+    //insert crab model to enemies vector
+    Model crab = Model(filenames[0][0], filenames[0][1],
+        glm::make_vec3(enemiesPos[0]), enemiesSca[0], enemiesRot[0],
+        GL_RGBA);
+    crab.setPivotObject();
+    enemies.push_back(crab);
+
+    //Push back remaining enemies
+    Model models[5];
+    for (int i = 0; i < 5; i++) {
+        models[i] = Model(filenames[i+1][0], filenames[i+1][1],
+            glm::make_vec3(enemiesPos[i+1]), enemiesSca[i+1], enemiesRot[i+1],
+            GL_RGB);
+        models[i].setPivotObject();
+        enemies.push_back(models[i]);
+    }
+  
+   
+
+    ////Placeholder for initializing models
+    //Model models[6];
+    /*for (int i = 0; i < 6; i++) {
+        models[i] = Model("3D/ball.obj", "3D/ball.jpg",
+            glm::make_vec3(positions[i]), 0.5f, glm::vec3(0),
+            GL_RGB);
+        enemies.push_back(models[i]);
+    }*/
 
     // Set player camera as default
     Camera activeCamera = (Camera)player.getActiveCamera();
@@ -203,7 +275,11 @@ int main(void)
         }
         else
             npcShader.sendInt("isFPP", 0);
-        sphere.draw(npcShader.getUniformLoc("transform"));
+
+        //Draw enemy models
+        for (int i = 0; i < 6; i++) {
+            enemies[i].draw(npcShader.getUniformLoc("transform"));
+        }
 
         /*** Draw filter in FPP mode ***/
         /*
@@ -236,7 +312,12 @@ int main(void)
 
     // Clean up variables
     player.cleanup();
-    sphere.cleanup();
+    //sphere.cleanup();
+
+    //Cleanup enemy models
+    for (int i = 0; i < 6; i++) {
+        enemies[i].cleanup();
+    }
     skybox.cleanup();
 
     glfwTerminate();
@@ -296,7 +377,7 @@ void CursorCallback(GLFWwindow* window, double xpos, double ypos) {
         player.parseCursor(window, xpos, ypos);
 
     // X degrees per pixel
-    static float sensitivity = 0.005;
+    static float sensitivity = 0.05;
 
     // Unlock freelook on mouse press, lock on release
     int mouseButton = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
@@ -320,8 +401,10 @@ void CursorCallback(GLFWwindow* window, double xpos, double ypos) {
     double oldY = cursorY;
     glfwGetCursorPos(window, &cursorX, &cursorY);
 
+    //Drag camera based on how far mouse moved from when left button is clicked
     orthoCam.dragCamera(-sensitivity * (oldY - cursorY), -sensitivity * (oldX - cursorX));
 
     //changes third person camera view based on mouse position
     //player.parseCursor(window, xpos, ypos);
 }
+
