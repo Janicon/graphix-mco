@@ -6,13 +6,13 @@ private:
         glm::radians(60.f),
         1.f,
         .1f,
-        10.f
+        100.f
     );
     glm::mat4 base_projection_fpp = glm::perspective(
         glm::radians(60.f),
         1.f,
         .1f,
-        100.f
+        200.f
     );
     float pitch = -25.f;
     float yaw = 90.f;
