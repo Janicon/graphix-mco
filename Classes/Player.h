@@ -26,13 +26,19 @@ private:
     double cursorX, cursorY;
 
     void repositionLight() {
-        //glm::vec3 newPos = obj.getPos();
+        glm::vec3 newPos = obj.getPos();
         float facing = obj.getRotation().x;
-        glm::vec3 newPos = glm::vec3(
+        
+        newPos += glm::vec3(
             0.5 * sin(glm::radians(facing)),
             0,
             0.5 * cos(glm::radians(facing)));
         flashlight.setPos(newPos);
+
+        glm::vec3 curPos = obj.getPos();
+        cout << "Object pos: " << curPos.x << "," << curPos.y << "," << curPos.z << endl;
+        cout << "Rotation  : " << facing << endl;
+        cout << "Light pos : " << newPos.x << "," << newPos.y << "," << newPos.z << endl << endl;
     }
 
 public:
@@ -120,7 +126,7 @@ public:
                 break;
             //turns the player to the left
             case GLFW_KEY_A:
-                obj.adjustRotate(glm::vec3(1.f, 0, 0));
+                obj.adjustRotate(glm::vec3(5.f, 0, 0));
                 break;
             //go backward opposite where the player is facing based on the x-axis rotation of the player
             //uses sine and cosine of player's x-axis to get the angle where it is heading to
@@ -133,7 +139,7 @@ public:
                 break;
             //turns the player to the right
             case GLFW_KEY_D:
-                obj.adjustRotate(glm::vec3(-1.f, 0, 0));
+                obj.adjustRotate(glm::vec3(-5.f, 0, 0));
                 break;
 
             // Change flashlight brightness

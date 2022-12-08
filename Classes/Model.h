@@ -278,6 +278,26 @@ public:
     glm::vec3 getAbsolutePos() {
         return glm::vec3(transformation * glm::vec4(1.f));
     }
+    glm::vec3 getNormalizedRotation() {
+        float x = rotation.x;
+        float y = rotation.y;
+        float z = rotation.z;
+
+        // Normalize to 360 degrees
+        x = fmod(x, 360);
+        y = fmod(y, 360);
+        z = fmod(z, 360);
+
+        // Normalize to positive 0-360 range
+        if (x < 0)
+            x += 360;
+        if (y < 0)
+            x += 360;
+        if (z < 0)
+            x += 360;
+
+        return glm::vec3(x, y, z);
+    }
 
     void setPivotOrigin() {
         pivotPoint = ORIGIN;
