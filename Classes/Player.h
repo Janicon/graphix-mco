@@ -39,15 +39,17 @@ private:
 public:
     Player() {}
 
-    Player(std::string objPath, std::string texPath,
-        glm::vec3 pos, float size, glm::vec3 rot,
-        int colorMode = GL_RGBA)
+    Player(std::string objPath,
+        std::string texPath, int texFormat,
+        std::string normPath, int normFormat,
+        glm::vec3 pos, float size, glm::vec3 rot)
     {
-        obj = Model(objPath.c_str(), texPath.c_str(),
-            pos, size, rot,
-            colorMode);
-        obj.loadNorm("3D/brickwall_normal.jpg", GL_RGB);
-        obj.setPivotObject();
+        obj = Model(objPath.c_str(),
+            texPath.c_str(), texFormat,
+            normPath, normFormat,
+            pos, size, rot);
+        obj.useNormals(true);
+        obj.initBuffers();
 
         flashlight = SpotLight(
             glm::vec3(0), glm::vec3(1), // Pos to be overriden
@@ -56,6 +58,7 @@ public:
         );
         flashlight.setAttenuation(linear[lightLevel], quadratic[lightLevel]);
         repositionLight();
+        tpp.adjustCameraTpp(obj.getPos(), obj.getRotation());
     }
 
     /* Getters */
