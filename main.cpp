@@ -56,7 +56,7 @@ int main(void)
         return -1;
     
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(screenWidth, screenHeight, "Jan Ambro Canicon", NULL, NULL);
+    window = glfwCreateWindow(screenWidth, screenHeight, "No Man's Submarine", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -73,17 +73,19 @@ int main(void)
 
 
     /*
-        Positions for testing:
+        Player Positions for testing:
         {0,0,-140}
         {80,-200,250},
         {-260,-240,415},
         {0,-450,800}
 
     */
+    
+    //Load player
     player = Player("3D/fish.obj",
         "3D/brickwall.jpg", GL_RGB,
         "3D/brickwall_normal.jpg", GL_RGB,
-        glm::vec3(0), 0.1f, glm::vec3(0, 0, 0));
+        glm::vec3(0, 0, -140), 0.1f, glm::vec3(0, 0, 0));
 
     Model sphere = Model("3D/ball.obj",
         "3D/ball.jpg", GL_RGB,
@@ -123,6 +125,7 @@ int main(void)
         {-90,0,0}// Treasure
     };
 
+    //Mesh file names and texture file names of enemy models
     std::string filenames[6][2] = {
         {"3D/crab.obj", "3D/crab.png"},
         {"3D/dolphin.obj", "3D/dolphin.jpg"},
@@ -132,6 +135,7 @@ int main(void)
         {"3D/obelisk.obj", "3D/obelisk.jpg"}
     };
     
+    //Vector array of enemies
     std::vector<Model> enemies;
     
     //insert crab model to enemies vector
@@ -151,17 +155,6 @@ int main(void)
             glm::make_vec3(enemiesPos[i+1]), enemiesSca[i+1], enemiesRot[i+1]);
         enemies.push_back(models[i]);
     }
-  
-   
-
-    ////Placeholder for initializing models
-    //Model models[6];
-    /*for (int i = 0; i < 6; i++) {
-        models[i] = Model("3D/ball.obj", "3D/ball.jpg",
-            glm::make_vec3(positions[i]), 0.5f, glm::vec3(0),
-            GL_RGB);
-        enemies.push_back(models[i]);
-    }*/
 
     // Set player camera as default
     Camera activeCamera = (Camera)player.getActiveCamera();
@@ -385,8 +378,5 @@ void CursorCallback(GLFWwindow* window, double xpos, double ypos) {
 
     //Drag camera based on how far mouse moved from when left button is clicked
     orthoCam.dragCamera(-sensitivity * (oldY - cursorY), -sensitivity * (oldX - cursorX));
-
-    //changes third person camera view based on mouse position
-    //player.parseCursor(window, xpos, ypos);
 }
 

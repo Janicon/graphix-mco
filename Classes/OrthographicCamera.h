@@ -3,12 +3,12 @@
 class OrthographicCamera : public Camera {
 private:
 
+    // projection matrix of top view
     const glm::mat4 base_projection = glm::ortho(
         -15.0f, 15.0f,
         -15.0f, 15.0f,
         -0.1f, 1000.0f
     );
-    float angle = 90.f;
 
 public:
     OrthographicCamera(glm::vec3 position, glm::vec3 target, glm::vec3 worldUp) {

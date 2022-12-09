@@ -2,12 +2,15 @@
 
 class PerspectiveCamera : public Camera {
 private:
+
+    //third person matrix. zFar is only 100 to implement nearsighted vision
     glm::mat4 base_projection_tpp = glm::perspective(
         glm::radians(60.f),
         1.f,
         .1f,
         100.f
     );
+    //third person matrix. zFar is twice tpp to see much further
     glm::mat4 base_projection_fpp = glm::perspective(
         glm::radians(60.f),
         1.f,
