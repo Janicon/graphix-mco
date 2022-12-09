@@ -144,7 +144,7 @@
     <ClInclude Include="Classes\PerspectiveCamera.h" />
     <ClInclude Include="Classes\Light.h" />
     <ClInclude Include="Classes\Player.h" />
-    <ClInclude Include="Classes\Spotlight.h" />
+    <ClInclude Include="Classes\PointLight.h" />
     <ClInclude Include="Classes\ShaderManager.h" />
     <ClInclude Include="Classes\Skybox.h" />
     <ClInclude Include="Dependencies\include\glad\glad.h" />

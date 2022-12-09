@@ -1,16 +1,32 @@
 #version 330 core //version
 
+struct DirectionLight {
+	vec3 direction;
+	vec3 color;
+	float strength;
+	float ambientStr;
+	vec3 ambientColor;
+	float specStr;
+	float specPhong;
+};
+
+struct PointLight {
+	vec3 position;
+	vec3 color;
+	float linear;
+	float quadratic;
+	float ambientStr;
+	vec3 ambientColor;
+	float specStr;
+	float specPhong;
+};
+
 uniform sampler2D tex0;
 uniform sampler2D tex1;
 uniform vec3 cameraPos;
 
-uniform vec3 dirLight_direction;
-uniform vec3 dirLight_color;
-uniform float dirLight_strength;
-uniform float dirLight_ambientStr;
-uniform vec3 dirLight_ambientColor;
-uniform float dirLight_specStr;
-uniform float dirLight_specPhong;
+uniform DirectionLight directionLight;
+uniform PointLight pointLight;
 
 in vec2 texCoord;
 in vec3 normCoord;
@@ -35,23 +51,55 @@ void main() {
 	vec3 viewDir = normalize(cameraPos - fragPos);
 
 	// Direction light calculations
-	vec3 lightDir = normalize(-dirLight_direction);
+	vec3 lightDir = normalize(-directionLight.direction);
 	float diff = max(
 		dot(normal, lightDir),
 		0.0f
 	);
-	vec3 diffuse = diff * dirLight_color;
-	vec3 ambientCol = dirLight_ambientStr * dirLight_ambientColor;
+	vec3 diffuse = diff * directionLight.color;
+	vec3 ambientCol = directionLight.ambientStr * directionLight.ambientColor;
 	vec3 reflectDir = reflect(-lightDir, normal);
 	float spec = pow(
 		max(
 			dot(reflectDir, viewDir), 0.1f
 		),
-		dirLight_specPhong
+		directionLight.specPhong
 	);
-	vec3 specCol = spec * dirLight_specStr * dirLight_color;
+	vec3 specCol = spec * directionLight.specStr * directionLight.color;
 	// Save calculated direction light scaled by light strength
-	vec3 result = (diffuse + ambientCol + specCol) * dirLight_strength;
+	vec3 result = (diffuse + ambientCol + specCol) * directionLight.strength;
+
+	// Point light calculations
+	lightDir = normalize(pointLight.position - fragPos);
+	diff = max(
+		dot(normal, lightDir),
+		0.0f
+	);
+
+	diffuse = diff * pointLight.color;
+	ambientCol = pointLight.ambientStr * pointLight.ambientColor;
+	reflectDir = reflect(-lightDir, normal);
+	spec = pow(
+		max(
+			dot(reflectDir, viewDir), 0.1f
+		),
+		pointLight.specPhong
+	);
+	specCol = spec * pointLight.specStr * pointLight.color;
+
+	// Calculate distance of light to object to light
+	float distance = length(pointLight.position - fragPos);
+	// Calculate attenuation scaled by light strength
+	float attenuation = 1.0f / (1.0f + pointLight.linear * distance + pointLight.quadratic * (distance * distance));
+
+	// Scale lighting by attenuation value
+	specCol *= attenuation;
+	diffuse *= attenuation;
+	ambientCol *= attenuation;
+
+
+	// Add calculated point light to existing direction light colors
+	result += (diffuse + ambientCol + specCol);
 
 	FragColor = vec4(result, 1.0f) * pixelColor;
 }

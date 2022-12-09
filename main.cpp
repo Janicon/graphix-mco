@@ -23,7 +23,7 @@ using namespace std;
 #include "Classes/OrthographicCamera.h"
 #include "Classes/Light.h"
 #include "Classes/DirectionLight.h"
-#include "Classes/SpotLight.h"
+#include "Classes/PointLight.h"
 #include "Classes/Player.h"
 
 /* Global variables */
@@ -180,6 +180,7 @@ int main(void)
         .2f, glm::vec3(1),
         3.f, 25.f
     );
+    directionLight.setIntensity(0.5f);
     glm::vec4 nvFilter = glm::vec4(0.05, 0.25, .05, 0.4);
 
     /* Loop until the user closes the window */
@@ -217,14 +218,24 @@ int main(void)
         playerShader.sendVec3("cameraPos", activeCamera.getPosition());
 
         // Direction light variables
-        playerShader.sendVec3("dirLight_direction", directionLight.getDirection());
-        playerShader.sendVec3("dirLight_color", directionLight.getColor());
-        playerShader.sendFloat("dirLight_strength", directionLight.getIntensity());
-        playerShader.sendFloat("dirLight_ambientStr", directionLight.getAmbientStr());
-        playerShader.sendVec3("dirLight_ambientColor", directionLight.getAmbientColor());
-        playerShader.sendFloat("dirLight_specStr", directionLight.getSpecStr());
-        playerShader.sendFloat("dirLight_specPhong", directionLight.getSpecPhong());
-        
+        playerShader.sendVec3("directionLight.direction", directionLight.getDirection());
+        playerShader.sendVec3("directionLight.color", directionLight.getColor());
+        playerShader.sendFloat("directionLight.strength", directionLight.getIntensity());
+        playerShader.sendFloat("directionLight.ambientStr", directionLight.getAmbientStr());
+        playerShader.sendVec3("directionLight.ambientColor", directionLight.getAmbientColor());
+        playerShader.sendFloat("directionLight.specStr", directionLight.getSpecStr());
+        playerShader.sendFloat("directionLight.specPhong", directionLight.getSpecPhong());
+
+        // Spot light variables
+        playerShader.sendVec3("pointLight.position", player.getFlashlight().getPos());
+        playerShader.sendVec3("pointLight.color", player.getFlashlight().getColor());
+        playerShader.sendFloat("pointLight.linear", player.getFlashlight().getLinear());
+        playerShader.sendFloat("pointLight.quadratic", player.getFlashlight().getQuadratic());
+        playerShader.sendFloat("pointLight.ambientStr", player.getFlashlight().getAmbientStr());
+        playerShader.sendVec3("pointLight.ambientColor", player.getFlashlight().getAmbientColor());
+        playerShader.sendFloat("pointLight.specStr", player.getFlashlight().getSpecStr());
+        playerShader.sendFloat("pointLight.specPhong", player.getFlashlight().getSpecPhong());
+
         // Draw object model
         playerShader.sendMat4("projection", activeCamera.getProjection());
         playerShader.sendMat4("view", activeCamera.getViewMatrix());
@@ -241,26 +252,23 @@ int main(void)
         npcShader.sendVec3("cameraPos", activeCamera.getPosition());
 
         // Direction light variables
-        npcShader.sendVec3("dirLight_direction", directionLight.getDirection());
-        npcShader.sendVec3("dirLight_color", directionLight.getColor());
-        npcShader.sendFloat("dirLight_strength", directionLight.getIntensity());
-        npcShader.sendFloat("dirLight_ambientStr", directionLight.getAmbientStr());
-        npcShader.sendVec3("dirLight_ambientColor", directionLight.getAmbientColor());
-        npcShader.sendFloat("dirLight_specStr", directionLight.getSpecStr());
-        npcShader.sendFloat("dirLight_specPhong", directionLight.getSpecPhong());
+        npcShader.sendVec3("directionLight.direction", directionLight.getDirection());
+        npcShader.sendVec3("directionLight.color", directionLight.getColor());
+        npcShader.sendFloat("directionLight.strength", directionLight.getIntensity());
+        npcShader.sendFloat("directionLight.ambientStr", directionLight.getAmbientStr());
+        npcShader.sendVec3("directionLight.ambientColor", directionLight.getAmbientColor());
+        npcShader.sendFloat("directionLight.specStr", directionLight.getSpecStr());
+        npcShader.sendFloat("directionLight.specPhong", directionLight.getSpecPhong());
 
         // Spot light variables
-        npcShader.sendVec3("spotLight_position", player.getFlashlight().getPos());
-        npcShader.sendVec3("spotLight_color", player.getFlashlight().getColor());
-        npcShader.sendFloat("spotLight_linear", player.getFlashlight().getLinear());
-        npcShader.sendFloat("spotLight_quadratic", player.getFlashlight().getQuadratic());
-        npcShader.sendFloat("spotLight_ambientStr", player.getFlashlight().getAmbientStr());
-        npcShader.sendVec3("spotLight_ambientColor", player.getFlashlight().getAmbientColor());
-        npcShader.sendFloat("spotLight_specStr", player.getFlashlight().getSpecStr());
-        npcShader.sendFloat("spotLight_specPhong", player.getFlashlight().getSpecPhong());
-
-        npcShader.sendFloat("cutoff", glm::cos(glm::radians(7.5f)));
-        npcShader.sendFloat("outercutoff", glm::cos(glm::radians(17.5f)));
+        npcShader.sendVec3("pointLight.position", player.getFlashlight().getPos());
+        npcShader.sendVec3("pointLight.color", player.getFlashlight().getColor());
+        npcShader.sendFloat("pointLight.linear", player.getFlashlight().getLinear());
+        npcShader.sendFloat("pointLight.quadratic", player.getFlashlight().getQuadratic());
+        npcShader.sendFloat("pointLight.ambientStr", player.getFlashlight().getAmbientStr());
+        npcShader.sendVec3("pointLight.ambientColor", player.getFlashlight().getAmbientColor());
+        npcShader.sendFloat("pointLight.specStr", player.getFlashlight().getSpecStr());
+        npcShader.sendFloat("pointLight.specPhong", player.getFlashlight().getSpecPhong());
 
         npcShader.sendMat4("projection", activeCamera.getProjection());
         npcShader.sendMat4("view", activeCamera.getViewMatrix());

@@ -2,8 +2,9 @@
 class Player {
 private:
     enum cameraModes { FPP, TPP };
-    float linear[3]{ 0.0014, 0.007, 0.014 };
-    float quadratic[3]{ 0.000007, 0.0002, 0.0007 };
+    // Distances: 100, 600, 3250
+    float linear[3]{ 0.045, 0.007, 0.0014 };
+    float quadratic[3]{ 0.0075, 0.0002, 0.000007 };
     float lightLevels[3]{ 1, 1.5, 3 };
 
     Model obj;
@@ -17,7 +18,7 @@ private:
         glm::vec3(0),
         glm::vec3(0, 1, 0),
         false);
-    SpotLight flashlight;
+    PointLight flashlight;
 
     // User control
     cameraModes activeCamera = TPP;
@@ -51,7 +52,7 @@ public:
         obj.useNormals(true);
         obj.initBuffers();
 
-        flashlight = SpotLight(
+        flashlight = PointLight(
             glm::vec3(0), glm::vec3(1), // Pos to be overriden
             .1f, glm::vec3(1),
             1.f, 32.f
@@ -75,7 +76,7 @@ public:
             return tpp;
     }
 
-    SpotLight getFlashlight() {
+    PointLight getFlashlight() {
         return flashlight;
     }
 
