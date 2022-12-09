@@ -33,6 +33,7 @@ public:
         // Distance from focal point
         static float distance = 1.7;
 
+        // adds the delta yaw and pitch values to the default yaw and pitch
         yaw += yawDelta;
         pitch += pitchDelta;
 
@@ -46,40 +47,52 @@ public:
         position[1] = sin(glm::radians(pitch) * -1) * distance;
         position[2] = -sin(glm::radians(yaw)) * cos(glm::radians(pitch)) * distance;
 
+        //adds the position of the player to the current position of the camera
         position += playerpos;
 
+        //sets the position of the player to the target of the camera
         target = playerpos;
     }
 
     void adjustCameraTpp(glm::vec3 playerpos, glm::vec3 playerrot) {
+        // Distance from focal point
         static float distance = 1.5;
 
+        //uses sine and cosine of player's x-axis to get the angle where it is heading to
+        //then adds the position of the player to the current position of the camera
         position[0] = -sin(glm::radians(playerrot.x)) * distance + playerpos.x;
         position[1] = playerpos.y + 0.75f;
         position[2] = -cos(glm::radians(playerrot.x)) * distance + playerpos.z;
 
+        //sets the position of the player to the target of the camera
         target = playerpos;
     }
 
     void adjustCameraFpp(glm::vec3 playerpos, glm::vec3 playerrot) {
+        //get the current x-axis player rotation and offset it to face behind the object
         float newRot = playerrot.x - 180.f;
 
-
+        //gets the offset for x and y axes using sine and cosine of newRot
         float offsetX = -sin(glm::radians(newRot));
         float offsetY = -cos(glm::radians(newRot));
 
+        //sets the position of the player to the current position of the camera
         position = playerpos;
 
+        //adds the x and y offsets to the current camera position
         position[0] += offsetX;
         position[2] += offsetY;
 
+        //sets the camera position as the target of the camera
         target = position;
 
+        //adds the x and y offsets to the current camera target
         target[0] += offsetX;
         target[2] += offsetY;
     }
 
     void setYawPitch(glm::vec3 playerrot) {
+        //sets default pitch and yaw including where the player is facing
         pitch = -25.f;
         yaw = 90.f - playerrot.x;
     }
