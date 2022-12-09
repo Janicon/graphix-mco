@@ -73,7 +73,7 @@ int main(void)
 
 
     /*
-        Player Positions for testing:
+        Player Positions near debris for testing:
         {0,0,-140}
         {80,-200,250},
         {-260,-240,415},
@@ -81,17 +81,11 @@ int main(void)
 
     */
     
-    //Load player
-    player = Player("3D/fish.obj",
-        "3D/brickwall.jpg", GL_RGB,
-        "3D/brickwall_normal.jpg", GL_RGB,
-        glm::vec3(0, 0, -140), 0.1f, glm::vec3(0, 0, 0));
-
-    Model sphere = Model("3D/ball.obj",
-        "3D/ball.jpg", GL_RGB,
-        "", GL_RGB,
-        glm::vec3(0, 0, -10), 0.1f, glm::vec3(0));
-    sphere.initBuffers();
+    // Create player
+    player = Player("3D/nemo.obj",
+        "3D/nemo.png", GL_RGBA,
+        "3D/nemo_normal.png", GL_RGBA,
+        glm::vec3(0, 0, 0), 1.5f, glm::vec3(0, 0, 0));
 
     // Positions of enemy models
     float enemiesPos[6][3] =
@@ -165,15 +159,11 @@ int main(void)
     glfwSetKeyCallback(window, Key_Callback);
     glfwSetCursorPosCallback(window, CursorCallback);
 
+    // Create vertex and fragment shader managers
     ShaderManager filterShader = ShaderManager("filter");
     ShaderManager playerShader = ShaderManager("player");
     ShaderManager npcShader = ShaderManager("npc");
     ShaderManager lightShader = ShaderManager("lightSource");
-
-    // TODO: Recheck recording if should be in model.initBuffer
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
     DirectionLight directionLight = DirectionLight(
         glm::vec3(0, -5, 0), glm::vec3(1),
@@ -188,11 +178,6 @@ int main(void)
     {
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        
-        // Blend tester http://www.andersriggelsen.dk/glblendfunc.php
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glBlendEquation(GL_FUNC_ADD);
 
         // Change active camera based on mode
         if (isTopDown)
@@ -201,6 +186,7 @@ int main(void)
             activeCamera = (Camera)player.getActiveCamera();
 
         /*** Draw skybox ***/
+        // Change filter color depending on perspective
         if (player.isFPP() && !isTopDown) {
             skybox.resetFilterColor(nvFilter);
             skybox.draw(activeCamera.getViewMatrix(), 1);
@@ -211,7 +197,7 @@ int main(void)
         }
 
         /*** Draw player submarine ***/
-        // Draw models
+        // Set shader
         playerShader.useShaderProgram();
         
         // Get position of active camera
@@ -240,12 +226,13 @@ int main(void)
         playerShader.sendMat4("projection", activeCamera.getProjection());
         playerShader.sendMat4("view", activeCamera.getViewMatrix());
 
-        if(!player.isFPP())
+        // Draw player if in third-person view or in top view
+        if(!player.isFPP() || isTopDown)
             player.getPlayer().draw(playerShader.getUniformLoc("transform"),
                 playerShader.getUniformLoc("tex0"),
                 playerShader.getUniformLoc("tex1"));
         
-        /*** Draw relics ***/
+        /*** Draw debris (NPCs) ***/
         npcShader.useShaderProgram();
 
         // Get position of active camera
@@ -273,6 +260,7 @@ int main(void)
         npcShader.sendMat4("projection", activeCamera.getProjection());
         npcShader.sendMat4("view", activeCamera.getViewMatrix());
 
+        // Change model color depending on perspective
         if (player.isFPP() && !isTopDown) {
             npcShader.sendVec4("filterColor", nvFilter);
             npcShader.sendInt("isFPP", 1);
@@ -281,10 +269,9 @@ int main(void)
             npcShader.sendInt("isFPP", 0);
 
         //Draw enemy models
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 6; i++)
             enemies[i].draw(npcShader.getUniformLoc("transform"),
                 npcShader.getUniformLoc("tex0"));
-        }
         
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
@@ -295,12 +282,10 @@ int main(void)
 
     // Clean up variables
     player.cleanup();
-    //sphere.cleanup();
 
     //Cleanup enemy models
-    for (int i = 0; i < 6; i++) {
+    for (int i = 0; i < 6; i++)
         enemies[i].cleanup();
-    }
     skybox.cleanup();
 
     glfwTerminate();
@@ -317,10 +302,10 @@ void Key_Callback(GLFWwindow* window,
     if (action == GLFW_RELEASE)
         return;
     
+    // Toggle top-down view
     if (key == GLFW_KEY_2) {
         isTopDown = !isTopDown;
-
-
+        
         //Update top view camera position and target to player
         if (isTopDown) {
             //get position of player 
@@ -331,6 +316,7 @@ void Key_Callback(GLFWwindow* window,
         }
     }
 
+    // Sends movement input to player if camera is not in top-down view
     if (!isTopDown) {
         //changes player position and camera view based on the key and action
         player.parseKey(key, action);
@@ -338,7 +324,7 @@ void Key_Callback(GLFWwindow* window,
     }
 
     switch (key) {
-    //Top View Camera Pan Controls
+        //Top View Camera Pan Controls
         case GLFW_KEY_W:
             orthoCam.panCamera(glm::vec3(0, 0, -1));
             break;
@@ -351,11 +337,16 @@ void Key_Callback(GLFWwindow* window,
         case GLFW_KEY_D:
             orthoCam.panCamera(glm::vec3(1, 0, 0));
             break;
+
+        // Change flashlight brightness
+        case GLFW_KEY_F:
+            player.cycleLight();
+            break;
     }
 }
 
 void CursorCallback(GLFWwindow* window, double xpos, double ypos) {
-    // Send input to player
+    // Controls camera if not in top-down view
     if (!isTopDown)
         player.parseCursor(window, xpos, ypos);
 
@@ -385,6 +376,6 @@ void CursorCallback(GLFWwindow* window, double xpos, double ypos) {
     glfwGetCursorPos(window, &cursorX, &cursorY);
 
     //Drag camera based on how far mouse moved from when left button is clicked
-    orthoCam.dragCamera(-sensitivity * (oldY - cursorY), -sensitivity * (oldX - cursorX));
+    orthoCam.panCamera(-sensitivity * (oldX - cursorX), -sensitivity * (oldY - cursorY));
 }
 

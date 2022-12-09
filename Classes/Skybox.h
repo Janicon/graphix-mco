@@ -45,6 +45,7 @@ private:
 
 public:
 	Skybox() {
+        // Creates buffers
         glGenVertexArrays(1, &VAO);
         glGenBuffers(1, &VBO);
         glGenBuffers(1, &EBO);
@@ -58,7 +59,7 @@ public:
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GL_INT) * 36, &defaultIndices, GL_STATIC_DRAW);
 
         glEnableVertexAttribArray(0);
-
+        
         std::string faces[]{
             "Skybox/uw_ft.jpg",
             "Skybox/uw_bk.jpg",
@@ -106,15 +107,23 @@ public:
 
         stbi_set_flip_vertically_on_load(true);
         
+        // Creates vertex and fragment shader for skybox
         shader = ShaderManager("skybox");
 
         filterColor = glm::vec4(0.05, 0.1, .5, 0.5);
 	}
 
+    /* Resets filter color to normal
+    *  @param color (optional) - ovveride filter color to set
+    */
     void resetFilterColor(glm::vec4 color = glm::vec4(0.05, 0.1, .5, 0.5)) {
         filterColor = color;
     }
 
+    /* Draws skybox
+    *  @param viewMatrix - view matrix of camera
+    *  @param isFPP - used to flag the use of color filter
+    */
     void draw(glm::mat4 viewMatrix, int isFPP) {
         glDepthMask(GL_FALSE);
         glDepthFunc(GL_LEQUAL);
@@ -138,7 +147,8 @@ public:
         glDepthMask(GL_TRUE);
         glDepthFunc(GL_LESS);
     }
-
+    
+    /* Deletion of buffers after object use */
     void cleanup() {
         glDeleteVertexArrays(1, &VAO);
         glDeleteBuffers(1, &VBO);

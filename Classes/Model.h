@@ -4,8 +4,7 @@ class Model {
 protected:
     static enum pivot { ORIGIN, OBJECT };
 
-    GLuint VAO, VBO;
-
+    // Object attributes
     std::vector<tinyobj::shape_t> shapes;
     std::vector<tinyobj::material_t> material;
     std::string warning, error;
@@ -14,20 +13,24 @@ protected:
     std::vector<GLfloat> fullVertexData;
     GLintptr uvPtr = 3 * sizeof(GLfloat);
 
-    bool mode = false;
-
+    // Texture attributes
     int img_width, img_height, color_channels;
-    int norm_width, norm_height, norm_channels;
     GLuint texture;
+    int norm_width, norm_height, norm_channels;
     GLuint normTex;
-    int offset;
-    bool usingNormals;
 
-    glm::vec3 position, scale, rotation;
-    glm::mat4 transformation;
+    // Flags
+    bool usingNormals;
     pivot pivotPoint = OBJECT;
 
-    void loadObj(std::string objPath, bool mode=false) {
+    // Draw attributes
+    GLuint VAO, VBO;
+    int offset;
+    glm::vec3 position, scale, rotation;
+    glm::mat4 transformation;
+
+    /* Loads object vertices from given filepath */
+    void loadObj(std::string objPath) {
         // Load object from file
         bool success = tinyobj::LoadObj(
             &attributes,
@@ -38,6 +41,7 @@ protected:
             objPath.c_str()
         );
         
+        // Calculate tangents and bitangents if using normals
         std::vector<glm::vec3> tangents;
         std::vector<glm::vec3> bitangents;
 
@@ -116,6 +120,7 @@ protected:
             fullVertexData.push_back(attributes.texcoords[uvIndex]);
             fullVertexData.push_back(attributes.texcoords[uvIndex + 1]);
 
+            // Add tangents and bitangents if using normals
             if (usingNormals) {
                 fullVertexData.push_back(tangents[i].x);
                 fullVertexData.push_back(tangents[i].y);
@@ -128,7 +133,7 @@ protected:
         }
     }
 
-    // Load image (After glfwInit and gladLoadGL)
+    /* Loads texture from path */
     void loadTex(std::string texPath, int colorMode) {
         unsigned char* tex_bytes = stbi_load(texPath.c_str(),
             &img_width,
@@ -156,6 +161,7 @@ protected:
         stbi_image_free(tex_bytes);
     }
 
+    /* Loads normal texture from path */
     void loadNorm(std::string texPath, int colorMode) {
         unsigned char* norm_bytes = stbi_load(texPath.c_str(),
             &norm_width,
@@ -196,21 +202,24 @@ public:
     {
         // Load object from file
         loadObj(objPath);
+        // Load texture if specified
         if(!texPath.empty())
             loadTex(texPath, texFormat);
+        // Load normals if specified
         if (!normPath.empty())
             loadNorm(texPath, normFormat);
 
-        // Initialize hidden attributes
-        offset = 8;
+        // Initialize flags
         usingNormals = false;
 
-        // Initialize object position vectors
+        // Initialize draw vectors
+        offset = 8;
         position = pos;
         scale = glm::vec3(size);
         rotation = rot;
     }
 
+    /* Initialize buffers for drawing */
     void initBuffers() {
         glGenVertexArrays(1, &VAO);
         glGenBuffers(1, &VBO);
@@ -279,43 +288,21 @@ public:
             );
             glEnableVertexAttribArray(4);
         }
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     }
 
     /* Getters */
     bool isUsingNormals() {
         return usingNormals;
     }
-    std::vector<GLfloat> getFullVertexData() {
-        return fullVertexData;
-    }
     glm::vec3 getPos() {
         return position;
     }
-    glm::vec3 getAbsolutePos() {
-        return glm::vec3(transformation * glm::vec4(1.f));
-    }
     glm::vec3 getRotation() {
         return rotation;
-    }
-    glm::vec3 getNormalizedRotation() {
-        float x = rotation.x;
-        float y = rotation.y;
-        float z = rotation.z;
-
-        // Normalize to 360 degrees
-        x = fmod(x, 360);
-        y = fmod(y, 360);
-        z = fmod(z, 360);
-
-        // Normalize to positive 0-360 range
-        if (x < 0)
-            x += 360;
-        if (y < 0)
-            x += 360;
-        if (z < 0)
-            x += 360;
-
-        return glm::vec3(x, y, z);
     }
 
     /* Setters */
@@ -342,6 +329,12 @@ public:
         this->rotation = rotation;
     }
 
+    /* Methods */
+    /* Draws object
+    *  @param transformationLoc - uniform index to pass transformation matrix
+    *  @param tex0 - uniform index to assign texture
+    *  @param tex1 - uniform index to assign normals
+    */
     void draw(unsigned int transformationLoc, unsigned int tex0, unsigned int tex1 = -1) {
         glBindVertexArray(VAO);
 
@@ -398,8 +391,8 @@ public:
         glBindTexture(GL_TEXTURE_2D, texture);
         glUniform1i(tex0, 0);
 
+        // If included, bind normals to object and draw
         if (tex1 != -1) {
-            // Bind normals to object and draw
             glActiveTexture(GL_TEXTURE1);
             glBindTexture(GL_TEXTURE_2D, normTex);
             glUniform1i(tex1, 1);
@@ -408,14 +401,21 @@ public:
         glDrawArrays(GL_TRIANGLES, 0, fullVertexData.size() / offset);
     }
 
+    /* Modifies position of camera
+    *  @param value - value to move XYZ position of object
+    */
     void modPos(glm::vec3 value) {
         position += value;
     }
 
+    /* Modifies rotation of camera
+    *  @param newRot - value to change XYZ rotation of object
+    */
     void adjustRotate(glm::vec3 newRot) {
         rotation += newRot;
     }
 
+    /* Deletion of buffers after object use */
     void cleanup() {
         glDeleteVertexArrays(1, &VAO);
         glDeleteBuffers(1, &VBO);

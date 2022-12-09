@@ -18,6 +18,7 @@ public:
         specPhong = 32.0f;
     }
 
+    /* Getters */
     glm::vec3 getColor() {
         return color;
     }
@@ -37,16 +38,11 @@ public:
         return specPhong;
     }
 
+    /* Setters */
     void setColor(glm::vec3 color) {
         this->color = color;
     }
     void setIntensity(float intensity) {
         this->intensity = intensity;
-    }
-
-    void modIntensity(float intensity) {
-        this->intensity += intensity;
-        if (this->intensity < 0.05)
-            this->intensity = 0.05;
     }
 };

@@ -17,6 +17,7 @@ public:
         this->specPhong = specPhong;
     }
 
+    /* Getters */
     glm::vec3 getDirection() {
         return direction;
     }

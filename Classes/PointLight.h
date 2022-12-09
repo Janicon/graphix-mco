@@ -21,22 +21,21 @@ public:
         quadratic = 0.000007f;
     }
 
+    /* Getters */
     glm::vec3 getPos() {
         return position;
     }
-
     float getLinear() {
         return linear;
     }
-
     float getQuadratic() {
         return quadratic;
     }
 
+    /* Setters */
     void setPos(glm::vec3 position) {
         this->position = position;
     }
-
     void setAttenuation(float linear, float quadratic) {
         this->linear = linear;
         this->quadratic = quadratic;

@@ -2,8 +2,7 @@
 
 class OrthographicCamera : public Camera {
 private:
-
-    // projection matrix of top view
+    // Set to top-view
     const glm::mat4 base_projection = glm::ortho(
         -15.0f, 15.0f,
         -15.0f, 15.0f,
@@ -18,15 +17,21 @@ public:
         projection = base_projection;
     }
 
-    //Pans the camera when using the WASD keys
+    /* Methods */
+    /* Moves camera in the XZ axis
+    *  @param position - value to move XZ position of camera
+    *       Note that position[1] should be zero
+    */
     void panCamera(glm::vec3 position) {
         this->position += position;
         this->target += position;
     }
 
-    //Drags the camera when using the mouse drag
-    void dragCamera(float yValue, float xValue) {
-
+    /* Moves camera in the XZ axis
+    *  @param xValue - Distance to pan in the X axis
+    *  @param yValue - Distance to pan in the Z axis
+    */
+    void panCamera(float xValue, float yValue) {
         //Update camera X position and target
         this->position.x -= xValue;
         this->target.x -= xValue;
@@ -34,7 +39,5 @@ public:
         //Update camera Z position and target
         this->position.z -= yValue;
         this->target.z -= yValue;
-
-        
     }
 };

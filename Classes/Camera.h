@@ -38,6 +38,9 @@ public:
 	}
 
 	/* Methods */
+	/* Modifies position of camera
+	*  @param val - value to move XYZ position of camera
+	*/
 	void modPos(glm::vec3 val) {
 		position += val;
 	}
