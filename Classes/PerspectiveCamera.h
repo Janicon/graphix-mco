@@ -7,14 +7,14 @@ private:
         glm::radians(60.f),
         1.f,
         .1f,
-        100.f
+        200.f
     );
     // First person projection. Large zFar for higher render distance
     glm::mat4 base_projection_fpp = glm::perspective(
         glm::radians(60.f),
         1.f,
         .1f,
-        200.f
+        500.f
     );
 
     float pitch = -25.f;

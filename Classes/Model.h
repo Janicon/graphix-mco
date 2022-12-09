@@ -197,9 +197,12 @@ public:
 
     Model(std::string objPath,
         std::string texPath, int texFormat,
-        std::string normPath, int normFormat,
+        bool useNormals, std::string normPath, int normFormat,
         glm::vec3 pos, float size, glm::vec3 rot)
     {
+        // Initialize flags
+        usingNormals = useNormals;
+
         // Load object from file
         loadObj(objPath);
         // Load texture if specified
@@ -209,11 +212,10 @@ public:
         if (!normPath.empty())
             loadNorm(texPath, normFormat);
 
-        // Initialize flags
-        usingNormals = false;
-
         // Initialize draw vectors
         offset = 8;
+        if (useNormals)
+            offset = 14;
         position = pos;
         scale = glm::vec3(size);
         rotation = rot;
@@ -306,16 +308,6 @@ public:
     }
 
     /* Setters */
-    void useNormals(bool value) {
-        if (value && normTex != 0) {
-            usingNormals = true;
-            offset = 14;
-        }
-        else if (value) {
-            offset = 8;
-            cout << "No normals texture";
-        }
-    }
     void setPivotOrigin() {
         pivotPoint = ORIGIN;
     }

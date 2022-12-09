@@ -85,17 +85,17 @@ int main(void)
     player = Player("3D/nemo.obj",
         "3D/nemo.png", GL_RGBA,
         "3D/nemo_normal.png", GL_RGBA,
-        glm::vec3(0, 0, 0), 1.5f, glm::vec3(0, 0, 0));
+        glm::vec3(0), 1.5f, glm::vec3(180.f, 0, 0));
 
     // Positions of enemy models
     float enemiesPos[6][3] =
     {
-        {0.f,0.f,-150.f}, //
-        {120,-225,300}, //upper Y 1
-        {180,-275,380}, // upper Y 2
-        {-225,-195,375}, // lower Y 3
-        {-275,-260,435}, // lower Y 4
-        {0,-500,900}// Treasure
+        {0.f,0.f,-150.f}, // Crab
+        {120,-225,300}, // Dolphin
+        {180,-275,380}, // Goldfish
+        {-225,-195,375}, // Shark
+        {-275,-260,435}, // Fish
+        {0,-500,900} // Obelisk
     };
 
     // Scales of enemy models
@@ -111,12 +111,12 @@ int main(void)
     // Rotation of enemy models
     glm::vec3 enemiesRot[6] =
     {
-        {-90,0,0}, //
-        {-120,-45,0}, //upper Y 1
-        {45,-90,90}, // upper Y 2
-        {0,-90,0}, // lower Y 3
-        {-180,0,0}, // lower Y 4
-        {-90,0,0}// Treasure
+        {-90,0,0}, // Crab
+        {-120,-45,0}, // Dolphin 
+        {45,-90,90}, // Goldfish
+        {0,-90,0}, // Shark
+        {-180,0,0}, // Fish
+        {-90,0,0}// Obelisk
     };
 
     //Mesh file names and texture file names of enemy models
@@ -125,7 +125,7 @@ int main(void)
         {"3D/dolphin.obj", "3D/dolphin.jpg"},
         {"3D/goldfish.obj", "3D/goldfish.jpg"},
         {"3D/shark.obj", "3D/shark.jpg"},
-        {"3D/fish.obj", "3D/brickwall.jpg"},
+        {"3D/fish.obj", "3D/bone.jpg"},
         {"3D/obelisk.obj", "3D/obelisk.jpg"}
     };
     
@@ -135,19 +135,20 @@ int main(void)
     //insert crab model to enemies vector
     Model crab = Model(filenames[0][0],
         filenames[0][1], GL_RGBA,
-        "", GL_RGB,
+        false, "", GL_RGB,
         glm::make_vec3(enemiesPos[0]), enemiesSca[0], enemiesRot[0]);
     crab.initBuffers();
     enemies.push_back(crab);
 
     //Push back remaining enemies
-    Model models[5];
+    Model model;
     for (int i = 0; i < 5; i++) {
-        models[i] = Model(filenames[i+1][0],
+        model = Model(filenames[i+1][0],
             filenames[i+1][1], GL_RGB,
-            "", GL_RGB,
+            false, "", GL_RGB,
             glm::make_vec3(enemiesPos[i+1]), enemiesSca[i+1], enemiesRot[i+1]);
-        enemies.push_back(models[i]);
+        model.initBuffers();
+        enemies.push_back(model);
     }
 
     // Set player camera as default
